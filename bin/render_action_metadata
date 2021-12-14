@@ -1,0 +1,19 @@
+#! /usr/bin/env ruby
+
+# Internal: Generate an action.yml metadata file using the inputs
+#
+# pages_action_url - Docker image URL to be used as the base action image.
+
+require 'erb'
+require 'securerandom'
+
+nonce = SecureRandom.hex
+pages_action_url = ARGV[0]
+
+action_erb_path = File.dirname(__FILE__) + '/../action.yml.erb'
+
+result = File.open(action_erb_path, 'r') do |file|
+  ERB.new(file.read).result(binding)
+end
+
+puts result

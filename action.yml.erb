@@ -1,0 +1,24 @@
+# <%= nonce %>
+name: 'Pages Jekyll'
+description: 'A simple GitHub Action for producing Jekyll build artifacts compatible with GitHub Pages'
+inputs:
+  source:
+    description: 'Directory where the source files reside.'
+    required: false
+    default: ./
+  destination:
+    description: 'Output directory of the build. Although it can be nested inside the source, it cannot be the same as the source directory.'
+    required: false
+    default: ./_site
+  verbose:
+    description: 'Verbose output'
+    required: false
+    default: '1'
+  token:
+    description: 'GitHub token'
+    required: true
+    default: ${{ github.token }}
+runs:
+  using: 'docker'
+  image: '<%= pages_action_url %>'
+
