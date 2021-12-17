@@ -61,6 +61,31 @@ jobs:
           name: ${{ env.TEST_NAME }}
           path: ./test_projects/${{ env.TEST_NAME }}
 
+  test-octicons:
+    runs-on: ubuntu-latest
+    env:
+      TEST_NAME: octicons
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Render Action Metadata
+        run: |
+          ./bin/render_action_metadata Dockerfile > action.yml
+
+      - name: Test ${{ env.TEST_NAME }} Project
+        uses: ./
+        with:
+          source: ./test_projects/${{ env.TEST_NAME }}
+          destination: ./test_projects/${{ env.TEST_NAME }}/_site
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Save test results
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.TEST_NAME }}
+          path: ./test_projects/${{ env.TEST_NAME }}
+
   test-mojombo:
     runs-on: ubuntu-latest
     env:
