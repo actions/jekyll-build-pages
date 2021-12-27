@@ -18,12 +18,19 @@ export JEKYLL_ENV="production"
 export JEKYLL_GITHUB_TOKEN=$INPUT_TOKEN
 export PAGES_REPO_NWO=$GITHUB_REPOSITORY
 
-if [ -z $INPUT_VERBOSE ]; then
-  VERBOSE=''
-else
+# Set verbose flag
+if [ "$INPUT_VERBOSE" = 'true' ]; then
   VERBOSE='--verbose'
+else
+  VERBOSE=''
 fi
 
-cd $PAGES_GEM_HOME
+# Set future flag
+if [ "$INPUT_FUTURE" = 'true' ]; then
+  FUTURE='--future'
+else
+  FUTURE=''
+fi
 
-$GITHUB_PAGES build $VERBOSE --source $SOURCE_DIRECTORY --destination $DESTINATION_DIRECTORY
+cd "$PAGES_GEM_HOME"
+$GITHUB_PAGES build "$VERBOSE" "$FUTURE" --source "$SOURCE_DIRECTORY" --destination "$DESTINATION_DIRECTORY"

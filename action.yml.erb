@@ -1,3 +1,4 @@
+# Generated from action.yml.erb
 # <%= nonce %>
 name: 'Pages Jekyll'
 description: 'A simple GitHub Action for producing Jekyll build artifacts compatible with GitHub Pages'
@@ -10,10 +11,14 @@ inputs:
     description: 'Output directory of the build. Although it can be nested inside the source, it cannot be the same as the source directory.'
     required: false
     default: ./_site
+  future:
+    description: 'Publishes posts with a future date.'
+    required: false
+    default: true
   verbose:
     description: 'Verbose output'
     required: false
-    default: '1'
+    default: true
   token:
     description: 'GitHub token'
     required: true
@@ -21,4 +26,3 @@ inputs:
 runs:
   using: 'docker'
   image: '<%= pages_action_url %>'
-
