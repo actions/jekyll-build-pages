@@ -1,0 +1,21 @@
+name: 'ShellCheck'
+
+on:
+  pull_request:
+    paths:
+      - '**.sh'
+
+jobs:
+  shellcheck:
+    runs-on: ubuntu-latest
+    env:
+      SHELLCHECK_OPTS: -s bash
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@1.1.0
+        with:
+          version: v0.8.0
+          format: tty
