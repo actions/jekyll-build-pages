@@ -19,17 +19,17 @@ export JEKYLL_GITHUB_TOKEN=$INPUT_TOKEN
 export PAGES_REPO_NWO=$GITHUB_REPOSITORY
 
 # Set verbose flag
-if [ -z "$INPUT_VERBOSE" ]; then
-  VERBOSE=''
-else
+if [ "$INPUT_VERBOSE" = 'true' ]; then
   VERBOSE='--verbose'
+else
+  VERBOSE=''
 fi
 
 # Set future flag
-if [ -z "$INPUT_FUTURE" ]; then
-  FUTURE=''
-else
+if [ "$INPUT_FUTURE" = 'true' ]; then
   FUTURE='--future'
+else
+  FUTURE=''
 fi
 
 cd "$PAGES_GEM_HOME"

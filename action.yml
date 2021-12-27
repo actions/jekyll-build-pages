@@ -1,5 +1,5 @@
 # Generated from action.yml.erb
-# 6fd2e419246dd9cc670908826ea4f649
+# cc3ed5559aaeabbc7ccc9899f91995ca
 name: 'Pages Jekyll'
 description: 'A simple GitHub Action for producing Jekyll build artifacts compatible with GitHub Pages'
 inputs:
