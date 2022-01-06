@@ -16,9 +16,9 @@ inputs:
     required: false
     default: true
   build_revision:
-    description: 'The SHA-1 of the git commit for which the build is running. Default to GITHUB_SHA when not provided.'
+    description: 'The SHA-1 of the git commit for which the build is running. Default to GITHUB_SHA.'
     required: false
-    default:
+    default: ${{ github.sha }}
   verbose:
     description: 'Verbose output'
     required: false
