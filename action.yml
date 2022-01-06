@@ -1,5 +1,5 @@
 # Generated from action.yml.erb
-# 2202b28a0e30e648e7494efed65d7a8f
+# 85fec0fc280fb0651f2256bf728c8ab3
 name: 'Pages Jekyll'
 description: 'A simple GitHub Action for producing Jekyll build artifacts compatible with GitHub Pages'
 inputs:
@@ -15,6 +15,10 @@ inputs:
     description: 'Publishes posts with a future date.'
     required: false
     default: true
+  build_revision:
+    description: 'The SHA-1 of the git commit for which the build is running. Default to GITHUB_SHA.'
+    required: false
+    default: ${{ github.sha }}
   verbose:
     description: 'Verbose output'
     required: false
