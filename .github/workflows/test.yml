@@ -30,11 +30,9 @@ jobs:
           destination: ./test_projects/${{ env.TEST_NAME }}/_site
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Save test results
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ env.TEST_NAME }}
-          path: ./test_projects/${{ env.TEST_NAME }}
+      - name: Verify output
+        run: |
+          ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
 
   test-readme:
     runs-on: ubuntu-latest
@@ -55,11 +53,9 @@ jobs:
           destination: ./test_projects/${{ env.TEST_NAME }}/_site
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Save test results
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ env.TEST_NAME }}
-          path: ./test_projects/${{ env.TEST_NAME }}
+      - name: Verify output
+        run: |
+          ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
 
   test-octicons:
     runs-on: ubuntu-latest
@@ -80,11 +76,9 @@ jobs:
           destination: ./test_projects/${{ env.TEST_NAME }}/_site
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Save test results
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ env.TEST_NAME }}
-          path: ./test_projects/${{ env.TEST_NAME }}
+      - name: Verify output
+        run: |
+          ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
 
   test-mojombo:
     runs-on: ubuntu-latest
@@ -105,11 +99,9 @@ jobs:
           destination: ./test_projects/${{ env.TEST_NAME }}/_site
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Save test results
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ env.TEST_NAME }}
-          path: ./test_projects/${{ env.TEST_NAME }}
+      - name: Verify output
+        run: |
+          ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
 
   test-themes:
     runs-on: ubuntu-latest
@@ -130,11 +122,9 @@ jobs:
           destination: ./test_projects/${{ env.TEST_NAME }}/_site
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Save test results
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ env.TEST_NAME }}
-          path: ./test_projects/${{ env.TEST_NAME }}
+      - name: Verify output
+        run: |
+          ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
 
   test-jekyll-include-cache:
     runs-on: ubuntu-latest
@@ -155,9 +145,7 @@ jobs:
           destination: ./test_projects/${{ env.TEST_NAME }}/_site
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Save test results
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ env.TEST_NAME }}
-          path: ./test_projects/${{ env.TEST_NAME }}
+      - name: Verify output
+        run: |
+          ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
 
