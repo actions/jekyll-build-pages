@@ -7,8 +7,8 @@ project_path = ARGV[0]
 
 Dir.chdir(project_path)
 
-expected_files = Dir["_expected/**/*"].map { |path| Pathname.new(path).relative_path_from("_expected").to_s }
-actual_files = Dir["_site/**/*"].map { |path| Pathname.new(path).relative_path_from("_site").to_s }
+expected_files = Dir["_expected/**/*"].select { |path| File.file?(path) }.map { |path| Pathname.new(path).relative_path_from("_expected").to_s }
+actual_files = Dir["_site/**/*"].select { |path| File.file?(path) }.map { |path| Pathname.new(path).relative_path_from("_site").to_s }
 
 differences = []
 
