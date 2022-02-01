@@ -10,6 +10,8 @@ on:
 
 env:
   TAG_NAME: ${{ github.event.inputs.TAG_NAME || github.event.release.tag_name }}
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 permissions:
   contents: write
 
@@ -27,11 +29,14 @@ jobs:
         source-tag: ${{ env.TAG_NAME }}
         slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
   publish_image:
+    needs: update_tag
     name: Publish the major version image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          ref: ${{ env.TAG_NAME }}
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action
       - name: Log into registry ${{ env.REGISTRY }}
