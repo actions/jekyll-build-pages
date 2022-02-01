@@ -28,6 +28,7 @@ jobs:
         with:
           source: ./test_projects/${{ env.TEST_NAME }}
           destination: ./test_projects/${{ env.TEST_NAME }}/_site
+          build_revision: JEKYLL_BUILD_REVISION
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify output
@@ -51,6 +52,7 @@ jobs:
         with:
           source: ./test_projects/${{ env.TEST_NAME }}
           destination: ./test_projects/${{ env.TEST_NAME }}/_site
+          build_revision: JEKYLL_BUILD_REVISION
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify output
@@ -74,6 +76,7 @@ jobs:
         with:
           source: ./test_projects/${{ env.TEST_NAME }}
           destination: ./test_projects/${{ env.TEST_NAME }}/_site
+          build_revision: JEKYLL_BUILD_REVISION
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify output
@@ -97,6 +100,7 @@ jobs:
         with:
           source: ./test_projects/${{ env.TEST_NAME }}
           destination: ./test_projects/${{ env.TEST_NAME }}/_site
+          build_revision: JEKYLL_BUILD_REVISION
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify output
@@ -120,6 +124,7 @@ jobs:
         with:
           source: ./test_projects/${{ env.TEST_NAME }}
           destination: ./test_projects/${{ env.TEST_NAME }}/_site
+          build_revision: JEKYLL_BUILD_REVISION
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify output
@@ -143,6 +148,7 @@ jobs:
         with:
           source: ./test_projects/${{ env.TEST_NAME }}
           destination: ./test_projects/${{ env.TEST_NAME }}/_site
+          build_revision: JEKYLL_BUILD_REVISION
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify output
