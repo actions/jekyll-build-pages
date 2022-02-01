@@ -63,21 +63,3 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Render Action Metadata
-        if: ${{ github.event_name != 'pull_request' }}
-        run: |
-          ./bin/render_action_metadata "docker://ghcr.io/actions/jekyll-build-pages:${{ github.ref_name }}" > action.yml
-          git add action.yml
-          git config --local user.name "github-actions[bot]"
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git commit -m "Add generated action.yml 🤖"
-          if [[ '${{ github.ref_type }}' == 'tag' ]]; then
-            echo "Pushing tag ${{ github.ref_name }}"
-            git tag -f ${{ github.ref_name }}
-            git push -f origin ${{ github.ref_name }}
-          else
-            echo "Pushing branch ${{ github.ref_name }}"
-            git push origin ${{ github.ref_name }}
-          fi
-
