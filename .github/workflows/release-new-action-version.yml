@@ -21,6 +21,8 @@ jobs:
     environment:
       name: releaseNewActionVersion
     runs-on: ubuntu-latest
+    outputs:
+      major_tag: ${{ steps.update-major-tag.outputs.major-tag }}
     steps:
     - name: Update the ${{ env.TAG_NAME }} tag
       id: update-major-tag
@@ -36,7 +38,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
-          ref: ${{ env.TAG_NAME }}
+          ref: ${{needs.update_tag.outputs.major_tag}}
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action
       - name: Log into registry ${{ env.REGISTRY }}
