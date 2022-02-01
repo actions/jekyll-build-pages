@@ -26,8 +26,6 @@ jobs:
       with:
         source-tag: ${{ env.TAG_NAME }}
         slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
-    - name: Update the ${{ env.TAG_NAME }} tag
-      id: update-major-tag
   publish_image:
     name: Publish the major version image
     runs-on: ubuntu-latest
