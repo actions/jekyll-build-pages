@@ -1,0 +1,10 @@
+#! /usr/bin/env sh
+
+export JEKYLL_ENV=production
+export PAGES_REPO_NWO=actions/jekyll-build-pages
+export JEKYLL_BUILD_REVISION=JEKYLL_BUILD_REVISION
+
+for dir in $(ls test_projects)
+do
+	bundle exec github-pages build --verbose -s test_projects/$dir -d test_projects/$dir/_expected
+done
