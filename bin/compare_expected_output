@@ -14,10 +14,7 @@ differences = []
 
 expected_files.each do |expected_file|
   if actual_files.include?(expected_file)
-    # FIXME: if we are able to move the expected output recording job onto actions,
-    # then we will be able to remove the -I param below which ignores the SEO json
-    # tag, because the recording will be consistent with the test output.
-    diff = `diff -I '"@context":"https://schema.org"' #{Shellwords.escape(File.join("_expected", expected_file))} #{Shellwords.escape(File.join("_site", expected_file))}`
+    diff = `diff #{Shellwords.escape(File.join("_expected", expected_file))} #{Shellwords.escape(File.join("_site", expected_file))}`
     if !$?.success?
       differences << "Expected output of #{expected_file} differs:\n#{diff}"
     end

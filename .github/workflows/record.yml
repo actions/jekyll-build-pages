@@ -1,0 +1,68 @@
+name: Record Expected
+
+on:
+  workflow_dispatch:
+
+jobs:
+  record-expected-output:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build test project 'simple'
+        uses: ./
+        with:
+          source: test_projects/simple
+          destination: test_projects/simple/_expected
+          build_revision: JEKYLL_BUILD_REVISION
+
+      - name: Build test project 'readme'
+        uses: ./
+        with:
+          source: test_projects/readme
+          destination: test_projects/readme/_expected
+          build_revision: JEKYLL_BUILD_REVISION
+
+      - name: Build test project 'octicons'
+        uses: ./
+        with:
+          source: test_projects/octicons
+          destination: test_projects/octicons/_expected
+          build_revision: JEKYLL_BUILD_REVISION
+
+      - name: Build test project 'mojombo'
+        uses: ./
+        with:
+          source: test_projects/mojombo
+          destination: test_projects/mojombo/_expected
+          build_revision: JEKYLL_BUILD_REVISION
+
+      - name: Build test project 'themes'
+        uses: ./
+        with:
+          source: test_projects/themes
+          destination: test_projects/themes/_expected
+          build_revision: JEKYLL_BUILD_REVISION
+
+      - name: Build test project 'jekyll-include-cache'
+        uses: ./
+        with:
+          source: test_projects/jekyll-include-cache
+          destination: test_projects/jekyll-include-cache/_expected
+          build_revision: JEKYLL_BUILD_REVISION
+
+      - name: Build test project 'future-false'
+        uses: ./
+        with:
+          source: test_projects/future-false
+          destination: test_projects/future-false/_expected
+          build_revision: JEKYLL_BUILD_REVISION
+
+      - name: Build test project 'future-true'
+        uses: ./
+        with:
+          source: test_projects/future-true
+          destination: test_projects/future-true/_expected
+          build_revision: JEKYLL_BUILD_REVISION
+
