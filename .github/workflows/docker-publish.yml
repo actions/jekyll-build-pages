@@ -46,7 +46,7 @@ jobs:
           # Generate tags for the image
           if [[ "${{ github.ref_name }}" == "main" ]]; then
             tags=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          elif [[ "${ {github.ref_name }}" =~ ^feature-.* ]]; then
+          elif [[ "${{ github.ref_name }}" =~ ^feature-.* ]]; then
             tags=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
           fi
           echo "::set-output name=tags::$tags"
