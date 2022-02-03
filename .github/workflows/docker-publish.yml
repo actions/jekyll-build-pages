@@ -9,12 +9,7 @@ on:
   push:
     branches:
       - 'main'
-    # Publish semver tags as releases. Allow for '-alpha'
-    # stage releases as well.
-    tags:
-      - 'v*.*.*-beta'
-      - 'v*.*.*-alpha'
-      - 'v*'
+      - 'feature-*'
   pull_request:
     branches:
       - 'main'
@@ -44,7 +39,17 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
+      - name: Generate Image Tags
+        if: github.event_name != 'pull_request'
+        id: generate-image-tags
+        run: |
+          # Generate tags for the image
+          if [[ ${ {github.ref_name }} == "main" ]]; then
+            tags=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          elsif [[ ${ {github.ref_name }} =~ ^feature-.* ]]; then
+            tags=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+          fi
+          echo "::set-output name=tags::$tags"
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata
@@ -61,5 +66,5 @@ jobs:
           context: .
           file: Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ steps.generate-image-tags.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
