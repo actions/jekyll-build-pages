@@ -10,6 +10,8 @@ on:
     branches:
       - 'main'
       - 'feature-*'
+    tags:
+      - 'v*'
   pull_request:
     branches:
       - 'main'
@@ -46,7 +48,7 @@ jobs:
           # Generate tags for the image
           if [[ "${{ github.ref_name }}" == "main" ]]; then
             tags=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          elif [[ "${{ github.ref_name }}" =~ ^feature-.* ]]; then
+          else
             tags=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
           fi
           echo "::set-output name=tags::$tags"
@@ -70,5 +72,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
       # Drafts your next Release notes as Pull Requests are merged into "main"
       - uses: release-drafter/release-drafter@v5
+        if: github.event_name != 'pull_request' && github.ref_name == 'main'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
