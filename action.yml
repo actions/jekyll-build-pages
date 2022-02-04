@@ -27,4 +27,4 @@ inputs:
     default: ${{ github.token }}
 runs:
   using: 'docker'
-  image: 'docker://ghcr.io/paper-spa/jekyll-build-pages:v1'
+  image: 'docker://ghcr.io/paper-spa/jekyll-build-pages:v1.0.11'
