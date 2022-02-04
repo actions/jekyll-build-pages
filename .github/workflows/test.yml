@@ -116,7 +116,7 @@ jobs:
           path: ./test_projects/${{ env.TEST_NAME }}
 
   test-mojombo:
-    needs: build
+    needs: resolve-image-tag
     runs-on: ubuntu-latest
     env:
       TEST_NAME: mojombo
