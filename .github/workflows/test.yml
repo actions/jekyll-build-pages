@@ -25,10 +25,9 @@ jobs:
           replace: "image:'DockerFile'"
           regex: true
           include: "action.yml"
-      - name: check scanned file
+      - name: Run Tests
         working-directory: ${{ github.workspace }}
         run: ls && cat action.yml
-      - name: Test simple
       - name: Test ${{ env.TEST_NAME }} Project
         uses: ./
         with:
