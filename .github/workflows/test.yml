@@ -22,7 +22,7 @@ jobs:
         uses: jacobtomlinson/gha-find-replace@v2
         with:
           find: "image:.*"
-          replace: "image:'DockerFile'"
+          replace: "image: 'DockerFile'"
           regex: true
           include: "action.yml"
       - name: Run Tests
