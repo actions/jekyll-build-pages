@@ -30,7 +30,7 @@ jobs:
         id: regex-match
         with:
           text: ${{ steps.grep-image-content.outputs.image }}
-          regex: "^jekyll-build-pages:(.*)'$"
+          regex: "jekyll-build-pages:(.*)'"
       - name: Build local docker image
         uses: docker/build-push-action@v2
         with:
