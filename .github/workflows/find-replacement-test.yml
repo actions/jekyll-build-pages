@@ -1,0 +1,20 @@
+name: 'Test replace'
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Find and Replace
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          find: "image:.*"
+          replace: "image:'DockerFile'"
+          regex: true
+          include: "action.yaml"
+      - run: cat action.yaml
