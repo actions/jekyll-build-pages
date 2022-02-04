@@ -30,8 +30,11 @@ jobs:
           text: ${{ steps.grep-image-content.outputs.image }}
           regex: "jekyll-build-pages:(.*)'"
       - name: Version match
-        if: ${{ steps.regex-match.outputs.group1 }} != ${{ env.TAG_NAME }}
-        run: echo "action.yaml with version ${{ steps.regex-match.outputs.group1 }} Tag version ${{ env.TAG_NAME }}"; exit 1;
+        run: |
+          if [ "${{ steps.regex-match.outputs.group1 }}" != "${{ env.TAG_NAME }}" ]; then
+            echo "version mismatch. action.yaml with version ${{ steps.regex-match.outputs.group1 }} Tag version ${{ env.TAG_NAME }}";
+            exit 1
+          fi
       - name: Verify image published
         run: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_NAME }}
   update_tag:
