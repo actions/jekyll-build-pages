@@ -18,8 +18,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    outputs:
-      image_tag: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.regex-match.outputs.group1 }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -33,6 +31,12 @@ jobs:
         with:
           text: ${{ steps.grep-image-content.outputs.image }}
           regex: "jekyll-build-pages:(.*)'"
+      - name: Build local docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: Dockerfile
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.regex-match.outputs.group1 }}
 
   test-simple:
     needs: build
@@ -42,12 +46,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Build local docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: Dockerfile
-          tags: ${{ needs.build.outputs.image_tag }}
       - name: Test ${{ env.TEST_NAME }} Project
         uses: ./
         with:
