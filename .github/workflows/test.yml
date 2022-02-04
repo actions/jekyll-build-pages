@@ -21,18 +21,22 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Extract Docker metadata
-        id: meta
-        uses: docker/metadata-action@v3
+      - name: grep action.yaml content
+        id: grep-image-content
+        run: |
+          image=$(grep -E "jekyll-build-pages:(.*)\'" action.yml)
+          echo "::set-output name=image::$image"
+      - uses: actions-ecosystem/action-regex-match@v2
+        id: regex-match
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          text: ${{ steps.grep-image-content.outputs.image }}
+          regex: "^jekyll-build-pages:(.*)'$"
       - name: Build local docker image
         uses: docker/build-push-action@v2
         with:
           context: .
           file: Dockerfile
-          tags: ${{ steps.generate-image-tags.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.regex-match.outputs.group1 }}
 
   test-simple:
     needs: build
