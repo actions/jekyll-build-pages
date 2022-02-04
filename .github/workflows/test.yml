@@ -9,25 +9,39 @@ on:
   pull_request:
     paths-ignore:
       - 'README.md'
+env:
+  # Use docker.io for Docker Hub if empty
+  REGISTRY: ghcr.io
+  # github.repository as <account>/<repo>
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      - name: Build local docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: Dockerfile
+          tags: ${{ steps.generate-image-tags.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
   test-simple:
+    needs: build
     runs-on: ubuntu-latest
     env:
       TEST_NAME: simple
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Switch to local page build
-        uses: jacobtomlinson/gha-find-replace@v2
-        with:
-          find: "image:.*"
-          replace: "image: 'DockerFile'"
-          regex: true
-          include: "action.yml"
-      - name: Run Tests
-        working-directory: ${{ github.workspace }}
-        run: ls && cat action.yml
       - name: Test ${{ env.TEST_NAME }} Project
         uses: ./
         with:
@@ -42,6 +56,7 @@ jobs:
           path: ./test_projects/${{ env.TEST_NAME }}
 
   test-readme:
+    needs: build
     runs-on: ubuntu-latest
     env:
       TEST_NAME: readme
@@ -63,6 +78,7 @@ jobs:
           path: ./test_projects/${{ env.TEST_NAME }}
 
   test-octicons:
+    needs: build
     runs-on: ubuntu-latest
     env:
       TEST_NAME: octicons
@@ -84,6 +100,7 @@ jobs:
           path: ./test_projects/${{ env.TEST_NAME }}
 
   test-mojombo:
+    needs: build
     runs-on: ubuntu-latest
     env:
       TEST_NAME: mojombo
@@ -105,6 +122,7 @@ jobs:
           path: ./test_projects/${{ env.TEST_NAME }}
 
   test-themes:
+    needs: build
     runs-on: ubuntu-latest
     env:
       TEST_NAME: themes
@@ -126,6 +144,7 @@ jobs:
           path: ./test_projects/${{ env.TEST_NAME }}
 
   test-jekyll-include-cache:
+    needs: build
     runs-on: ubuntu-latest
     env:
       TEST_NAME: jekyll-include-cache
