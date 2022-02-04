@@ -18,7 +18,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
+      - name: Switch to local page build
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          find: "image:.*"
+          replace: "image:'DockerFile'"
+          regex: true
+          include: "action.yml"
       - name: Test ${{ env.TEST_NAME }} Project
         uses: ./
         with:
