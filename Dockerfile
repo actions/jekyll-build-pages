@@ -6,7 +6,8 @@ RUN apt-get update \
     build-essential \
     git \
     locales \
-    nodejs
+    nodejs \
+    tree # We don't need this but I want to test something
 
 COPY Gemfile Gemfile
 
@@ -22,4 +23,3 @@ ENV LC_ALL en_US.UTF-8
 COPY entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
-
