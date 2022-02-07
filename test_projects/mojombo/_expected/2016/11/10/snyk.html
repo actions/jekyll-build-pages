@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Snyk - Automatically Scan and Fix Ruby and Nodejs Vulnerabilities</title>
+   <meta name="author" content="Tom Preston-Werner" />
+   <link href="http://feeds.feedburner.com/tom-preston-werner" rel="alternate" title="Tom Preston-Werner" type="application/atom+xml" />
+   <meta name="readability-verification" content="QCzSs992GxmRYRKVpPeZ6LE2tS8aYKxsSSQKV8YM"/>
+
+   <!-- syntax highlighting CSS -->
+   <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="/css/screen.css" type="text/css" media="screen, projection" />
+
+   <!-- Typekit -->
+   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
+   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+</head>
+<body>
+
+<!-- ClickTale Top part -->
+<script type="text/javascript">
+var WRInitTime=(new Date()).getTime();
+</script>
+<!-- ClickTale end of Top part -->
+
+<div class="site">
+  <div class="title">
+    <a href="/">Tom Preston-Werner</a>
+    <a class="extra" href="/">home</a>
+  </div>
+
+  <div id="post">
+<h1 id="snyk---automatically-scan-and-fix-ruby-and-nodejs-vulnerabilities">Snyk - Automatically Scan and Fix Ruby and Nodejs Vulnerabilities</h1>
+
+<p class="meta">10 Nov 2016 - San Francisco</p>
+
+<p>This is a story about a company called
+<a href="https://snyk.io/blog/welcome-ruby-users/">Snyk</a> (pronounced “sneak”), their
+founder Guy Podjarny, my decision to become one of their advisors, and how they
+are going to help save you from malevolent agents trying to steal your digital
+stuff.</p>
+
+<p>If you’re anything like me, you’re simultaneously terrified and in awe of the
+increasing commonality of large corporate security breaches. Even big names like
+Ebay, Home Depot, Anthem, JP Morgan Chase, Target, LinkedIn, Dropbox, and Yahoo
+are falling victim to sophisticated attacks. If you spend even a few minutes
+looking into it, you’ll be shocked at how frequently these breaches are
+happening now. The fine folks at Information is Beautiful have an excellent
+interactive visualization of the <a href="http://www.informationisbeautiful.net/visualizations/worlds-biggest-data-breaches-hacks/">World’s Biggest Data
+Breaches</a>
+over the last twelve years, in case you want to read all the gory details and
+never get a restful night of sleep ever again:</p>
+
+<p><a href="http://www.informationisbeautiful.net/visualizations/worlds-biggest-data-breaches-hacks/">
+  <img src="/images/posts/2016-11-10/breaches.png" />
+</a></p>
+
+<p>I’ve used a fair number of emotionally charged words above that might be
+triggering your FUD detectors right about now. But be advised: it’s not paranoia
+when they really are out to get you. If recent, extremely high profile (and
+subsequently weaponized) breaches like those of the Clinton Campaign and the DNC
+aren’t enough to make you want to air gap your entire life, then I envy your
+steely-eyed mettle and implore you to teach me your meditation techniques.</p>
+
+<p>The fact is, security is hard. And it’s getting harder every day. To win, you
+have to get it right every single time. To lose (and lose big), you only have to
+screw it up once.</p>
+
+<p>During my years at GitHub, I spent a lot of time assembling a dedicated security
+team, managing security audits and penetration tests, and working to establish a
+culture of security awareness amongst our development team. All of this is
+challenging and expensive, especially for a young company. Even worse, it’s the
+kind of investment that’s totally invisible when it’s working, making it hard to
+sustain until that crucial and terrible moment you end up on the front page of
+Hacker News as the latest victim.</p>
+
+<p>A year ago I was contemplating this, especially the difficult proposition of
+having developers, furious at work on new features, constantly maintain
+awareness of security vulnerabilities they might be inadvertently weaving into
+the product. Web application developers are generally not security experts, and
+though I would love to live in a world where that wasn’t true, it’s just not a
+realistic expectation. Meanwhile, modern development means an increasing
+reliance on 3rd party code. Even a small Rails app will probably have 300 or
+more gem dependencies after a few months of development. It’s even more in the
+nodejs world. This level of modularization and code reuse, driven by the
+explosion of high quality open source over the last decade, is amazing and I
+absolutely love it, but it comes at a security expense.</p>
+
+<p>Open source projects are not known for their excellent security records.
+Vulnerabilities like <a href="http://heartbleed.com/">Heartbleed</a> and
+<a href="https://blog.cloudflare.com/inside-shellshock/">Shellshock</a> painfully
+demonstrate the idea that “given enough eyeballs, all bugs are shallow” is
+completely false. In fact, due to a flaw in YAML, Rails had a <a href="http://blog.codeclimate.com/blog/2013/01/10/rails-remote-code-execution-vulnerability-explained/">pretty extreme
+remote code execution
+vulnerability</a>
+for years. If you were running any version of Rails prior to the fix, you were
+vulnerable. This stuff is real, and as responsible developers, we need to be
+more proactive about it.</p>
+
+<p>Luckily, at the time I was pondering these matters, I ran into Guy Podjarny. As
+a former cofounder of Blaze.io and then CTO of Web Experience at Akamai (which
+acquired Blaze.io), Guy intimately understands the impact of security on today’s
+web developers. He was working on an automated tool to scan and fix security
+vulnerabilities in 3rd party dependencies. I was intrigued. They already had a
+way to scan nodejs projects and look for known security vulnerabilities in the
+dependency tree and automatically upgrade or patch affected libraries. I thought
+this was pretty cool, but it was his vision for what automated security tooling
+could be that sold me on him and his company. I can’t talk much about that
+now, but just know that what Snyk is today is just the tip of what will
+become an intelligent and proactive bodyguard for your entire codebase.</p>
+
+<p>A few months ago, Snyk released GitHub integration to make it fantastically
+simple to hook up your repos to Snyk and, my favorite feature: the ability to
+monitor your repo for future vulnerabilities and then <strong>automatically submit a
+pull request</strong> with the suggested package upgrade or hotfix patch (nodejs only for
+now).</p>
+
+<p>Today, <a href="https://snyk.io/blog/welcome-ruby-users/">Snyk announced support for
+Ruby</a>. Take a look at that blog post,
+it does an awesome job of explaining how simple it is to set up and what the
+generated pull requests look like. It’s totally free for open source projects,
+and extremely cheap insurance for your important projects.</p>
+
+<p>Make no mistake, 3rd party code is a clear and present danger to your business.
+If you don’t know if you’re vulnerable, then you must assume that you are and
+take steps to protect yourself. Snyk makes it easy.</p>
+
+</div>
+
+<div id="related">
+  <h2>Related Posts</h2>
+  <ul class="posts">
+    
+      <li><span>19 Jun 2015</span> &raquo; <a href="/2015/06/19/replicated.html">Replicated - An Easier Path from SaaS to Enterprise</a></li>
+    
+      <li><span>21 Apr 2014</span> &raquo; <a href="/2014/04/21/farewell-github-hello-immersive-computing.html">Farewell GitHub, Hello Immersive Computing</a></li>
+    
+      <li><span>22 Nov 2011</span> &raquo; <a href="/2011/11/22/open-source-everything.html">Open Source (Almost) Everything</a></li>
+    
+  </ul>
+</div>
+
+  <div class="footer">
+    <div class="contact">
+      <p>
+        Tom Preston-Werner
+        <br />
+        Cofounder of
+          <a href="https://codestarter.org/">Codestarter</a>,
+          <a href="https://github.com/">GitHub</a>
+        <br />
+        tom@mojombo.com
+      </p>
+    </div>
+    <div class="contact">
+      <p>
+        <a href="http://github.com/mojombo/">github.com/mojombo</a><br />
+        <a href="http://twitter.com/mojombo/">twitter.com/mojombo</a><br />
+      </p>
+    </div>
+    <div class="rss">
+      <a href="http://feeds.feedburner.com/tom-preston-werner">
+        <img src="/images/rss.png" alt="Subscribe to RSS Feed" />
+      </a>
+    </div>
+  </div>
+</div>
+
+<a href="http://github.com/mojombo"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
+
+<!-- ClickTale Bottom part -->
+<div id="ClickTaleDiv" style="display: none;"></div>
+<script type="text/javascript">
+if(document.location.protocol!='https:')
+  document.write(unescape("%3Cscript%20src='http://s.clicktale.net/WRb.js'%20type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+if(typeof ClickTale=='function') ClickTale(206,0.3,"www03");
+</script>
+<!-- ClickTale end of Bottom part -->
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-6016902-1");
+pageTracker._trackPageview();
+</script>
+<!-- Google Analytics end -->
+
+</body>
+</html>

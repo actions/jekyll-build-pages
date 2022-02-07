@@ -1,0 +1,1888 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+ <title>Tom Preston-Werner</title>
+ <link href="http://tom.preston-werner.com/atom.xml" rel="self"/>
+ <link href="http://tom.preston-werner.com/"/>
+ <updated>2022-02-01T09:01:48-05:00</updated>
+ <id>http://tom.preston-werner.com/</id>
+ <author>
+   <name>Tom Preston-Werner</name>
+   <email>tom@mojombo.com</email>
+ </author>
+
+ 
+ <entry>
+   <title>Snyk - Automatically Scan and Fix Ruby and Nodejs Vulnerabilities</title>
+   <link href="http://tom.preston-werner.com/2016/11/10/snyk.html"/>
+   <updated>2016-11-10T00:00:00-05:00</updated>
+   <id>http://tom.preston-werner.com/2016/11/10/snyk</id>
+   <content type="html">&lt;h1 id=&quot;snyk---automatically-scan-and-fix-ruby-and-nodejs-vulnerabilities&quot;&gt;Snyk - Automatically Scan and Fix Ruby and Nodejs Vulnerabilities&lt;/h1&gt;
+
+&lt;p class=&quot;meta&quot;&gt;10 Nov 2016 - San Francisco&lt;/p&gt;
+
+&lt;p&gt;This is a story about a company called
+&lt;a href=&quot;https://snyk.io/blog/welcome-ruby-users/&quot;&gt;Snyk&lt;/a&gt; (pronounced “sneak”), their
+founder Guy Podjarny, my decision to become one of their advisors, and how they
+are going to help save you from malevolent agents trying to steal your digital
+stuff.&lt;/p&gt;
+
+&lt;p&gt;If you’re anything like me, you’re simultaneously terrified and in awe of the
+increasing commonality of large corporate security breaches. Even big names like
+Ebay, Home Depot, Anthem, JP Morgan Chase, Target, LinkedIn, Dropbox, and Yahoo
+are falling victim to sophisticated attacks. If you spend even a few minutes
+looking into it, you’ll be shocked at how frequently these breaches are
+happening now. The fine folks at Information is Beautiful have an excellent
+interactive visualization of the &lt;a href=&quot;http://www.informationisbeautiful.net/visualizations/worlds-biggest-data-breaches-hacks/&quot;&gt;World’s Biggest Data
+Breaches&lt;/a&gt;
+over the last twelve years, in case you want to read all the gory details and
+never get a restful night of sleep ever again:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.informationisbeautiful.net/visualizations/worlds-biggest-data-breaches-hacks/&quot;&gt;
+  &lt;img src=&quot;/images/posts/2016-11-10/breaches.png&quot; /&gt;
+&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;I’ve used a fair number of emotionally charged words above that might be
+triggering your FUD detectors right about now. But be advised: it’s not paranoia
+when they really are out to get you. If recent, extremely high profile (and
+subsequently weaponized) breaches like those of the Clinton Campaign and the DNC
+aren’t enough to make you want to air gap your entire life, then I envy your
+steely-eyed mettle and implore you to teach me your meditation techniques.&lt;/p&gt;
+
+&lt;p&gt;The fact is, security is hard. And it’s getting harder every day. To win, you
+have to get it right every single time. To lose (and lose big), you only have to
+screw it up once.&lt;/p&gt;
+
+&lt;p&gt;During my years at GitHub, I spent a lot of time assembling a dedicated security
+team, managing security audits and penetration tests, and working to establish a
+culture of security awareness amongst our development team. All of this is
+challenging and expensive, especially for a young company. Even worse, it’s the
+kind of investment that’s totally invisible when it’s working, making it hard to
+sustain until that crucial and terrible moment you end up on the front page of
+Hacker News as the latest victim.&lt;/p&gt;
+
+&lt;p&gt;A year ago I was contemplating this, especially the difficult proposition of
+having developers, furious at work on new features, constantly maintain
+awareness of security vulnerabilities they might be inadvertently weaving into
+the product. Web application developers are generally not security experts, and
+though I would love to live in a world where that wasn’t true, it’s just not a
+realistic expectation. Meanwhile, modern development means an increasing
+reliance on 3rd party code. Even a small Rails app will probably have 300 or
+more gem dependencies after a few months of development. It’s even more in the
+nodejs world. This level of modularization and code reuse, driven by the
+explosion of high quality open source over the last decade, is amazing and I
+absolutely love it, but it comes at a security expense.&lt;/p&gt;
+
+&lt;p&gt;Open source projects are not known for their excellent security records.
+Vulnerabilities like &lt;a href=&quot;http://heartbleed.com/&quot;&gt;Heartbleed&lt;/a&gt; and
+&lt;a href=&quot;https://blog.cloudflare.com/inside-shellshock/&quot;&gt;Shellshock&lt;/a&gt; painfully
+demonstrate the idea that “given enough eyeballs, all bugs are shallow” is
+completely false. In fact, due to a flaw in YAML, Rails had a &lt;a href=&quot;http://blog.codeclimate.com/blog/2013/01/10/rails-remote-code-execution-vulnerability-explained/&quot;&gt;pretty extreme
+remote code execution
+vulnerability&lt;/a&gt;
+for years. If you were running any version of Rails prior to the fix, you were
+vulnerable. This stuff is real, and as responsible developers, we need to be
+more proactive about it.&lt;/p&gt;
+
+&lt;p&gt;Luckily, at the time I was pondering these matters, I ran into Guy Podjarny. As
+a former cofounder of Blaze.io and then CTO of Web Experience at Akamai (which
+acquired Blaze.io), Guy intimately understands the impact of security on today’s
+web developers. He was working on an automated tool to scan and fix security
+vulnerabilities in 3rd party dependencies. I was intrigued. They already had a
+way to scan nodejs projects and look for known security vulnerabilities in the
+dependency tree and automatically upgrade or patch affected libraries. I thought
+this was pretty cool, but it was his vision for what automated security tooling
+could be that sold me on him and his company. I can’t talk much about that
+now, but just know that what Snyk is today is just the tip of what will
+become an intelligent and proactive bodyguard for your entire codebase.&lt;/p&gt;
+
+&lt;p&gt;A few months ago, Snyk released GitHub integration to make it fantastically
+simple to hook up your repos to Snyk and, my favorite feature: the ability to
+monitor your repo for future vulnerabilities and then &lt;strong&gt;automatically submit a
+pull request&lt;/strong&gt; with the suggested package upgrade or hotfix patch (nodejs only for
+now).&lt;/p&gt;
+
+&lt;p&gt;Today, &lt;a href=&quot;https://snyk.io/blog/welcome-ruby-users/&quot;&gt;Snyk announced support for
+Ruby&lt;/a&gt;. Take a look at that blog post,
+it does an awesome job of explaining how simple it is to set up and what the
+generated pull requests look like. It’s totally free for open source projects,
+and extremely cheap insurance for your important projects.&lt;/p&gt;
+
+&lt;p&gt;Make no mistake, 3rd party code is a clear and present danger to your business.
+If you don’t know if you’re vulnerable, then you must assume that you are and
+take steps to protect yourself. Snyk makes it easy.&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Replicated - An Easier Path from SaaS to Enterprise</title>
+   <link href="http://tom.preston-werner.com/2015/06/19/replicated.html"/>
+   <updated>2015-06-19T00:00:00-04:00</updated>
+   <id>http://tom.preston-werner.com/2015/06/19/replicated</id>
+   <content type="html">&lt;h1 id=&quot;replicated---an-easier-path-from-saas-to-enterprise&quot;&gt;Replicated - An Easier Path from SaaS to Enterprise&lt;/h1&gt;
+
+&lt;p class=&quot;meta&quot;&gt;19 Jun 2015 - San Francisco&lt;/p&gt;
+
+&lt;p&gt;Over the last year I’ve had a chance to learn a lot more about early stage
+funding and made angel investments in a handful of startups. So far I’ve
+restricted my involvement to companies with ideas in which I have significant
+domain knowledge. I also insist on founders with relentless product focus, a
+fierce desire to help their customers be more awesome, and excellent
+communication skills. I recently met just such a company, with just such
+founders, tackling a problem that has personally caused me much pain.&lt;/p&gt;
+
+&lt;p&gt;The company is &lt;a href=&quot;http://replicated.com&quot;&gt;Replicated&lt;/a&gt;, and founders Grant Miller
+and Marc Campbell are making it easier to roll out an on-prem Enterprise
+offering based on an existing cloud-based SaaS product.&lt;/p&gt;
+
+&lt;p&gt;At GitHub, we burned through &lt;strong&gt;a lot&lt;/strong&gt; of developer cycles building our own
+installer (several times), securing the installation environment, coding an
+automated licensing management system, integrating single sign-on services
+(LDAP, Active Directory, CAS, etc, etc), building out a searchable audit system,
+supporting customer-reviewable support bundles (logs and other diagnostic
+output), allowing numerous backup strategies, and countless other
+Enterprise-specific features that were killing our Enterprise deals. All of this
+on top of hiring and building out the necessary sales, support, and accounting
+teams to create a smooth Enterprise experience for our customers.&lt;/p&gt;
+
+&lt;p&gt;Replicated provides common Enterprise functionality (much of what I mentioned
+above, and all of it eventually) that you can wrap around your SaaS product,
+resulting in a first-class on-prem product in a fraction of the time. Beyond
+just technology, Replicated will help you understand your Enterprise customers
+through documentation on best practices and insight into the requirements and
+reasons that large companies desire the features they do. Until you can
+empathise with your customer (which is very hard to do as a fast-moving SaaS
+startup), you’ll never build the best product possible.&lt;/p&gt;
+
+&lt;p&gt;Getting into the Enterprise market will always be hard. But by reducing the
+technology burden, Replicated plans to erase much of the pain so you can focus
+on the other human-centric tasks. Not only am I an investor in Replicated, I
+believe in their mission and their founders so much that I’ve joined as an
+advisor. I understand what the uphill slog of the SaaS to Enterprise climb feels
+like, and I’m going to do my best to ensure you don’t have to suffer it as much
+as I did.&lt;/p&gt;
+
+&lt;p&gt;I’m also pleased to announce that Travis CI is now shipping their Enterprise
+product using Replicated. To see what the installation process is like, &lt;a href=&quot;https://www.youtube.com/watch?v=ViN-qkcovL0&amp;amp;feature=youtu.be&quot;&gt;watch
+Grant install Travis CI
+Enterprise&lt;/a&gt; on a
+fresh server in about seven minutes. For a deeper dive, Travis CI has also
+published a blog post covering some of their process in &lt;a href=&quot;http://blog.travis-ci.com/2015-06-19-how-we-improved-travis-ci-installation/&quot;&gt;getting their
+Enterprise installer ready using
+Replicated&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;In the coming weeks, you’ll start to see other well-known startups launching (or
+re-launching) Enterprise versions of their SaaS software on top of Replicated.
+If you’re looking to do the same, and want to save yourself a lot of heartache,
+email &lt;a href=&quot;mailto:contact@replicated.com&quot;&gt;contact@replicated.com&lt;/a&gt;, and start
+focusing on what matters the most: your unique and kickass product.&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Farewell GitHub, Hello Immersive Computing</title>
+   <link href="http://tom.preston-werner.com/2014/04/21/farewell-github-hello-immersive-computing.html"/>
+   <updated>2014-04-21T00:00:00-04:00</updated>
+   <id>http://tom.preston-werner.com/2014/04/21/farewell-github-hello-immersive-computing</id>
+   <content type="html">&lt;h1 id=&quot;farewell-github-hello-immersive-computing&quot;&gt;Farewell GitHub, Hello Immersive Computing&lt;/h1&gt;
+
+&lt;p class=&quot;meta&quot;&gt;21 Apr 2014 - New York City&lt;/p&gt;
+
+&lt;p&gt;Today is my last day at GitHub. Recent events have given me a lot of time to
+reflect on what’s important to me, and I’ve decided to switch gears and focus on
+building something from scratch again. Since visiting the Oculus VR team at
+their office three months ago, I’ve come to believe that immersive computing
+(aka virtual reality) is poised to rival the personal computer, the web, social
+networking, and mobile devices in its impact. While the timing is more abrupt
+than I had intended, with everything that’s happened, I think now is the right
+time to do this, and I’d like to explain why.&lt;/p&gt;
+
+&lt;p&gt;First, I want to address the serious accusations that were made against me and
+my family over the past month. With every decision I made at GitHub and in every
+interaction I had with employees, I tried to treat people better than they
+expected and to resolve conflict with empathy. Despite that, I’ve made mistakes,
+and I am deeply sorry to anyone who was hurt by those mistakes. It devastates me
+to know that I missed the mark, and I will strive to do better, every day.&lt;/p&gt;
+
+&lt;p&gt;That said, I want to be very clear about one thing: neither my wife, Theresa,
+nor I have ever engaged in gender-based harassment or discrimination. The
+results of GitHub’s independent investigation unequivocally confirm this and we
+are prepared to fight any further false claims on this matter to the full extent
+of the law. I believe in diversity and equality for all people in all
+professions, especially the tech sector. It’s immensely important to me and I
+will continue to do my very best to further that belief.&lt;/p&gt;
+
+&lt;p&gt;Unfortunately, the investigation and all the attention surrounding it have me
+concerned that remaining at GitHub would be a distraction for both me and the
+company. I’m incredibly proud of what I’ve helped build at GitHub and I don’t
+want the events of the past month to jeopardize that. I care too much about the
+company and the people here to let that happen. The GitHub team is incredibly
+strong, with fierce vision, and I have no doubt they will continue to
+revolutionize software development for decades to come. Founding and building
+GitHub has been the greatest adventure of my life. I’ve been so lucky to be on
+this journey with such amazing, helpful, talented, and real people. I’m going to
+miss working with such a great team, but I’m also insanely excited about the
+future.&lt;/p&gt;
+
+&lt;p&gt;Since the early days of GitHub, I’ve wanted to create a different kind of
+business. One that was &lt;a href=&quot;http://tom.preston-werner.com/2010/10/18/optimize-for-happiness.html&quot;&gt;Optimized for
+Happiness&lt;/a&gt;
+and built atop a &lt;a href=&quot;https://www.youtube.com/watch?v=i0FzgvYxdvk&quot;&gt;Framework of
+Happiness&lt;/a&gt;. One where great people
+could work on hard problems together to create unbelievably good products. I
+believe I was able to achieve a great deal of success with that model at GitHub,
+even if things didn’t always go perfectly according to plan. All of this has
+been a tremendous learning experience for me.&lt;/p&gt;
+
+&lt;p&gt;Last January I stepped down as CEO and handed that role over to cofounder Chris
+Wanstrath so I could focus on future-facing R&amp;amp;D projects with small teams. This
+kind of rapid, team-based innovation is what I live for. During my time away
+from GitHub I started experimenting with Go, OpenGL, and Unity with an eye
+towards the software side of immersive computing. It felt really good to get
+back into a code editor and challenge the deeply logical and analytical part of
+my brain. I’ve enjoyed the challenges of learning how to lead a company with
+hundreds of people, but it’s very hard for me to deny the allure of coding a
+system that could once again change the course of history.&lt;/p&gt;
+
+&lt;p&gt;I’m telling you this because I think stealth mode is bullshit and if you feel
+the same way I do about immersive computing then I want to talk with you about
+it. For the next few months I’m going to be living in Manhattan. My wife,
+Theresa, is currently participating in Techstars NYC as their very first
+nonprofit. Her startup, &lt;a href=&quot;https://omakasecharity.org/&quot;&gt;The Omakase Charity&lt;/a&gt;,
+helps donors learn about and support nonprofits that are changing the world with
+technology. She’s one of the strongest and most thoughtful women I know, and I’m
+hoping to help her succeed with her mission while I’m here.&lt;/p&gt;
+
+&lt;p&gt;Thank you to everyone that reached out to me over the last month, including the
+generous team at Andreessen Horowitz. Your support has made a huge difference
+and I’m truly excited for what’s next.&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Open Source (Almost) Everything</title>
+   <link href="http://tom.preston-werner.com/2011/11/22/open-source-everything.html"/>
+   <updated>2011-11-22T00:00:00-05:00</updated>
+   <id>http://tom.preston-werner.com/2011/11/22/open-source-everything</id>
+   <content type="html">&lt;h1 id=&quot;open-source-almost-everything&quot;&gt;Open Source (Almost) Everything&lt;/h1&gt;
+
+&lt;p class=&quot;meta&quot;&gt;22 Nov 2011 - San Francisco&lt;/p&gt;
+
+&lt;p&gt;When Chris and I first started working on GitHub in late 2007, we split the work into two parts. Chris worked on the Rails app and I worked on Grit, the first ever Git bindings for Ruby. After six months of development, Grit had become complete enough to power GitHub during our public launch of the site and we were faced with an interesting question:&lt;/p&gt;
+
+&lt;p&gt;Should we open source Grit or keep it proprietary?&lt;/p&gt;
+
+&lt;p&gt;Keeping it private would provide a higher hurdle for competing Ruby-based Git hosting sites, giving us an advantage. Open sourcing it would mean thousands of people worldwide could use it to build interesting Git tools, creating an even more vibrant Git ecosystem.&lt;/p&gt;
+
+&lt;p&gt;After a small amount of debate we decided to open source Grit. I don’t recall the specifics of the conversation but that decision nearly four years ago has led to what I think is one of our most important core values: open source (almost) everything.&lt;/p&gt;
+
+&lt;h2 id=&quot;why-is-it-awesome-to-open-source-almost-everything&quot;&gt;Why is it awesome to open source (almost) everything?&lt;/h2&gt;
+
+&lt;p&gt;If you do it right, open sourcing code is &lt;strong&gt;great advertising&lt;/strong&gt; for you and your company. At GitHub we like to talk publicly about libraries and systems we’ve written that are still closed but destined to become open source. This technique has several advantages. It helps determine what to open source and how much care we should put into a launch. We recently open sourced Hubot, our chat bot, to widespread delight. Within two days it had 500 watchers on GitHub and 409 upvotes on Hacker News. This translates into goodwill for GitHub and more superfans than ever before.&lt;/p&gt;
+
+&lt;p&gt;If your code is popular enough to attract outside contributions, you will have created a &lt;strong&gt;force multiplier&lt;/strong&gt; that helps you get more work done faster and cheaper. More users means more use cases being explored which means more robust code. Our very own &lt;a href=&quot;https://github.com/defunkt/resque&quot;&gt;resque&lt;/a&gt; has been improved by 115 different individuals outside the company, with hundreds more providing 3rd-party plugins that extend resque’s functionality. Every bug fix and feature that you merge is time saved and customer frustration avoided.&lt;/p&gt;
+
+&lt;p&gt;Smart people like to hang out with other smart people. Smart developers like to hang out with smart code. When you open source useful code, you &lt;strong&gt;attract talent&lt;/strong&gt;. Every time a talented developer cracks open the code to one of your projects, you win. I’ve had many great conversations at tech conferences about my open source code. Some of these encounters have led to ideas that directly resulted in better solutions to problems I was having with my projects. In an industry with such a huge range of creativity and productivity between developers, the right eyeballs on your code can make a big difference.&lt;/p&gt;
+
+&lt;p&gt;If you’re hiring, &lt;strong&gt;the best technical interview possible&lt;/strong&gt; is the one you don’t have to do because the candidate is already kicking ass on one of your open source projects. Once technical excellence has been established in this way, all that remains is to verify cultural fit and convince that person to come work for you. If they’re passionate about the open source code they’ve been writing, and you’re the kind of company that cares about well-crafted code (which clearly you are), that should be simple! We hired &lt;a href=&quot;https://github.com/tanoku&quot;&gt;Vicent Martí&lt;/a&gt; after we saw him doing stellar work on &lt;a href=&quot;https://github.com/libgit2/libgit2&quot;&gt;libgit2&lt;/a&gt;, a project we’re spearheading at GitHub to extract core Git functionality into a standalone C library. No technical interview was necessary, Vicent had already proven his skills via open source.&lt;/p&gt;
+
+&lt;p&gt;Once you’ve hired all those great people through their contributions, dedication to open source code is an amazingly effective way to &lt;strong&gt;retain that talent&lt;/strong&gt;. Let’s face it, great developers can take their pick of jobs right now. These same developers know the value of coding in the open and will want to build up a portfolio of projects they can show off to their friends and potential future employers. That’s right, a paradox! In order to keep a killer developer happy, you have to help them become more attractive to other employers. But that’s ok, because that’s exactly the kind of developer you want to have working for you. So relax and let them work on open source or they’ll go somewhere else where they can.&lt;/p&gt;
+
+&lt;p&gt;When I start a new project, I assume it will eventually be open sourced (even if it’s unlikely). This mindset leads to &lt;strong&gt;effortless modularization&lt;/strong&gt;. If you think about how other people outside your company might use your code, you become much less likely to bake in proprietary configuration details or tightly coupled interfaces. This, in turn, leads to cleaner, more maintainable code. Even internal code should pretend to be open source code.&lt;/p&gt;
+
+&lt;p&gt;Have you ever written an amazing library or tool at one job and then left to join another company only to rewrite that code or remain miserable in its absence? I have, and it sucks. By getting code out in the public we can drastically &lt;strong&gt;reduce duplication of effort&lt;/strong&gt;. Less duplication means more work towards things that matter.&lt;/p&gt;
+
+&lt;p&gt;Lastly, &lt;strong&gt;it’s the right thing to do&lt;/strong&gt;. It’s almost impossible to do anything these days without directly or indirectly executing huge amounts of open source code. If you use the internet, you’re using open source. That code represents millions of man-hours of time that has been spent and then given away so that everyone may benefit. We all enjoy the benefits of open source software, and I believe we are all morally obligated to give back to that community. If software is an ocean, then open source is the rising tide that raises all ships.&lt;/p&gt;
+
+&lt;h2 id=&quot;ok-then-what-shouldnt-i-open-source&quot;&gt;Ok, then what shouldn’t I open source?&lt;/h2&gt;
+
+&lt;p&gt;That’s easy. Don’t open source anything that represents core business value.&lt;/p&gt;
+
+&lt;p&gt;Here are some examples of what we don’t open source and why:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Core GitHub Rails app (easier to sell when closed)&lt;/li&gt;
+  &lt;li&gt;The Jobs Sinatra app (specially crafted integration with github.com)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Here are some examples of things we do open source and why:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Grit (general purpose Git bindings, useful for building many tools)&lt;/li&gt;
+  &lt;li&gt;Ernie (general purpose BERT-RPC server)&lt;/li&gt;
+  &lt;li&gt;Resque (general purpose job processing)&lt;/li&gt;
+  &lt;li&gt;Jekyll (general purpose static site generator)&lt;/li&gt;
+  &lt;li&gt;Gollum (general purpose wiki app)&lt;/li&gt;
+  &lt;li&gt;Hubot (general purpose chat bot)&lt;/li&gt;
+  &lt;li&gt;Charlock_Holmes (general purpose character encoding detection)&lt;/li&gt;
+  &lt;li&gt;Albino (general purpose syntax highlighting)&lt;/li&gt;
+  &lt;li&gt;Linguist (general purpose filetype detection)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Notice that everything we keep closed has specific business value that could be compromised by giving it away to our competitors. Everything we open is a general purpose tool that can be used by all kinds of people and companies to build all kinds of things.&lt;/p&gt;
+
+&lt;h2 id=&quot;what-is-the-one-true-license&quot;&gt;What is the One True License?&lt;/h2&gt;
+
+&lt;p&gt;I prefer the MIT license and almost everything we open source at GitHub carries this license. I love this license for several reasons:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;It’s short. Anyone can read this license and understand exactly what it means without wasting a bunch of money consulting high-octane lawyers.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Enough protection is offered to be relatively sure you won’t sue me if something goes wrong when you use my code.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Everyone understands the legal implications of the MIT license. Weird licenses like the WTFPL and the Beer license pretend to be the “ultimate in free licenses” but utterly fail at this goal. These fringe licenses are too vague and unenforceable to be acceptable for use in some companies. On the other side, the GPL is too restrictive and dogmatic to be usable in many cases. I want everyone to benefit from my code. Everyone. That’s what Open should mean, and that’s what Free should mean.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;rad-how-do-i-get-started&quot;&gt;Rad, how do I get started?&lt;/h2&gt;
+
+&lt;p&gt;Easy, just flip that switch on your GitHub repository from private to public and tell the world about your software via your blog, Twitter, Hacker News, and over beers at your local pub. Then sit back, relax, and enjoy being part of something big.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://news.ycombinator.com/item?id=3267432&quot;&gt;Discuss this post on Hacker News&lt;/a&gt;&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Rejected Bio from The Setup</title>
+   <link href="http://tom.preston-werner.com/2011/05/03/rejected-bio-from-the-setup.html"/>
+   <updated>2011-05-03T00:00:00-04:00</updated>
+   <id>http://tom.preston-werner.com/2011/05/03/rejected-bio-from-the-setup</id>
+   <content type="html">&lt;h1 id=&quot;rejected-bio-from-the-setup&quot;&gt;Rejected Bio from The Setup&lt;/h1&gt;
+
+&lt;p class=&quot;meta&quot;&gt;03 May 2011 - San Francisco&lt;/p&gt;
+
+&lt;p&gt;Yesterday, &lt;a href=&quot;http://tom.preston-werner.usesthis.com/&quot;&gt;the autobiographical post I wrote for The
+Setup&lt;/a&gt; went live. I wrote that post
+over a year ago and then entered into an epic battle with
+&lt;a href=&quot;http://twitter.com/#!/waferbaby&quot;&gt;@waferbaby&lt;/a&gt; about the length of my “Who are
+you, and what do you do?” section. He said it was too long. I said it could
+not be shortened. And so the post sat for a year, collecting dust, neither of
+us prepared to back down.&lt;/p&gt;
+
+&lt;p&gt;About a month ago I decided that it was foolish to let the words I had written rot on my hard drive and so I did the only thing I knew how to do: overreact. So I cut the original nine-hundred words of my bio down to fourteen words and resubmitted it to Daniel. Those are the words you see in the post now.&lt;/p&gt;
+
+&lt;p&gt;For your pleasure, here is the original bio in its full, unabridged glory.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;My name is Tom Preston-Werner. I find that the hyphenated last name
+makes me sound distinguished and worth listening to. I grew up three
+decades ago in a small city in Iowa along the Mississippi, which means
+I shucked a lot of corn and know exactly how many mosquitos will land
+on your arm should you hold it still for ten minutes at dusk on the
+muggiest day of the summer. As an aspiring theoretical particle
+physicist, I worked my way through entire shelves of scientific
+literature from the public library, desperately wanting to understand
+the bewildering mathematics that littered the pages like so many
+leaves on the bottom of that morning’s cup of green tea. I searched in
+vain for instructors or classmates that could provide me with the
+insight necessary to comprehend the true meaning of Heisenberg’s
+Uncertainty Principle, but all I found were underpaid math teachers
+and disillusioned “students” in search of their next smoke break.
+After obsessing over US News’ Best Colleges reports for months I
+finally chose and was accepted to Harvey Mudd, a tiny engineering
+school in California famous for assigning the greatest number of hours
+of homework per night. This sounded just perfect to me. Finally a
+place I could bring up the EPR Paradox and not be immediately
+stigmatized as “that science weirdo with the hilariously thick glasses
+and unfortunate hairdo.”&lt;/p&gt;
+
+&lt;p&gt;Mudd did not disappoint. But now I had the opposite problem. In order
+to properly understand particle physics, you must have a deep and
+profound love of math. You have to be so comfortable with abstract
+concepts that even Picasso would be jealous. Ironically, in order to
+grasp the fundamental reality of our universe, you must forget about
+the “reality” of everyday life and start living in a world comprised
+of eigenvectors, Hilbert spaces, and Planck’s constant. This was a
+leap I could not make. I like math, but I’m too easily distracted by
+macroscopic reality to make it my profession.&lt;/p&gt;
+
+&lt;p&gt;Once I accepted that I would never spend late nights poring over
+bubble chamber printouts at Fermilab, it became obvious that I was
+destined to enter computer science. I started programming in BASIC on
+a TRS-80 that my dad bought from Radio Shack when I was 8 years old.
+Since then, I’d learned to love the discipline and creativity involved
+in making a machine do my bidding. It was like having a super-obedient
+but annoyingly logical little brother. He’ll do anything you want as
+long as you tell him in precise and unambiguous language. The best
+thing is, the feedback is immediate. In physics, it can take twenty
+years to prove that a single esoteric particle even exists. When
+you’re writing a program that displays the number of electrons in each
+of the shells around the nucleus of every element, the feedback is
+immediate and intoxicating. With just a few keystrokes, the world is
+changed forever. Try to get that kind of rush even once in a lifetime
+as a theoretical particle physicist. I dare you.&lt;/p&gt;
+
+&lt;p&gt;In 1999, after two years of college, I dropped out of Harvey Mudd to
+join a startup with some friends that were graduating. It was the end
+of the first dot-com bubble and I thought I could strike it rich,
+right then and there. Sadly, like so many startups of the day, we
+never accomplished what we envisioned and I ended up bouncing between
+jobs and consulting gigs for six years until I found myself in San
+Francisco. If Harvey Mudd was my mecca for physicists, then San
+Francisco was my mecca for programmers. Where else can you be grabbing
+lunch at a taqueria and overhear a group at the next table discussing
+the finer points of optimizing C code to run on an embedded processor?&lt;/p&gt;
+
+&lt;p&gt;I moved to San Francisco to take a job as a Ruby developer with a
+Wikipedia search engine called Powerset. I also began attending Ruby
+meetups and drinking with local software developers. There are a lot
+of talented people in the Bay Area and I wanted to meet them all.
+Within the Ruby community, a distributed version control system called
+Git was starting to get some attention. It was a really cool way of
+working with other people on code, but there wasn’t an easy way to get
+up and running with a group of developers. Along with cofounders Chris
+Wanstrath and PJ Hyett (who I met at the Ruby meetups) I started a
+company called GitHub that would address this problem and make it dead
+simple to share Git repositories and collaborate on code with other
+developers.&lt;/p&gt;
+
+&lt;p&gt;At first, we worked on GitHub on the side, putting in time on evenings
+and weekends. After six months we launched the site to the public and
+started charging. Not long after that, Powerset was acquired by
+Microsoft and I was faced with a choice: stay on as a Microsoft
+employee with a big retention bonus and give up GitHub or turn down
+the Microsoft money and quit Powerset to work on GitHub full-time. You
+can read more about this saga in my blog post entitled &lt;a href=&quot;http://tom.preston-werner.com/2008/10/18/how-i-turned-down-300k.html&quot;&gt;How I Turned
+Down $300,000 from Microsoft to go Full-Time on
+GitHub&lt;/a&gt;.
+I think I made the right decision.&lt;/p&gt;
+
+&lt;p&gt;Today GitHub has twenty-nine employees and more than 730,000 users with over
+2,000,000 repositories. We’re growing fast, and I’m having the time of
+my life!&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Ten Lessons from GitHub's First Year</title>
+   <link href="http://tom.preston-werner.com/2011/03/29/ten-lessons-from-githubs-first-year.html"/>
+   <updated>2011-03-29T00:00:00-04:00</updated>
+   <id>http://tom.preston-werner.com/2011/03/29/ten-lessons-from-githubs-first-year</id>
+   <content type="html">&lt;h1 id=&quot;ten-lessons-from-githubs-first-year&quot;&gt;Ten Lessons from GitHub’s First Year&lt;/h1&gt;
+
+&lt;p class=&quot;meta&quot;&gt;29 Mar 2011 / 29 Dec 2008 - San Francisco&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;NOTE: This post was written in late December of 2008, more than two years
+ago. It has stayed in my drafts folder since then, waiting for the last 2% to be
+written. Why I never published it is beyond my reckoning, but it serves as a
+great reminder of how I perceived the world back then. In the time since I wrote
+this we’ve grown from four people to twenty-six, settled into an office,
+installed a kegerator, and still never taken outside funding. In some ways,
+things have changed a great deal, but in the most important ways, things are
+still exactly the same. Realizing this puts a big smile on my face.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;The end of the year is a great time to sit down with a glass of your favorite
+beverage, dim the lights, snuggle up next to the fire and think about what
+you’ve learned over the past twelve months.&lt;/p&gt;
+
+&lt;p&gt;For me, 2008 was the year that I helped design, develop, and launch GitHub.
+Creating a new startup is an intense learning experience. Through screwups and
+triumphs, I have learned some valuable lessons this year. Here’s a few of them.&lt;/p&gt;
+
+&lt;h2 id=&quot;start-early&quot;&gt;Start Early&lt;/h2&gt;
+
+&lt;p&gt;When Chris and I started working on GitHub in late 2007, Git was largely unknown
+as a version control system. Sure, Linux kernel hackers had been using it since
+day one, but outside of that small microcosm, it was rare to come across a
+developer that was using it on a day-to-day basis. I was first introduced to Git
+by Dave Fayram, a good friend and former coworker during my days at Powerset.
+Dave is the quintessential early adopter and, as far as I can calculate, patient
+zero for the spread of Git adoption in the Ruby community and beyond.&lt;/p&gt;
+
+&lt;p&gt;Back then, the Git landscape was pretty barren. Git had only recently become
+usable by normal people with the 1.5 release. As for Git hosting, there was
+really only &lt;a href=&quot;http://repo.or.cz/&quot;&gt;repo.or.cz&lt;/a&gt;, which felt to me very limited,
+clumsy, and poorly designed. There were no commercial Git hosting options
+whatsoever. Despite this, people were starting to talk about Git at the Ruby
+meetups. About how awesome it was. But something was amiss. Git was supposed to
+be this amazing way to work on code in a distributed way, but what was the
+mechanism to securely share private code? Your only option was to setup user
+accounts on Unix machines and use that as an ad-hoc solution. Not ideal.&lt;/p&gt;
+
+&lt;p&gt;And so GitHub was born. But it was born into a world where there was no existing
+market for paid Git hosting. We would be &lt;em&gt;creating&lt;/em&gt; the market. I vividly
+remember telling people, “I don’t expect GitHub to succeed right away. Git
+adoption will take a while, but we’ll be ready when it happens.” Neither Chris
+nor I were in any particular hurry for this to happen. I was working full time
+at Powerset, and he was making good money as a Rails consultant. By choosing to
+build early on top of a nascent technology, we were able to construct a startup
+with basically no overhead, no competition, and in our free time.&lt;/p&gt;
+
+&lt;h2 id=&quot;adapt-to-your-customers&quot;&gt;Adapt to Your Customers&lt;/h2&gt;
+
+&lt;p&gt;Here’s a seemingly paradoxical piece of advice for you: Listen to your
+customers, but don’t let them tell you what to do. Let me explain. Consider a
+feature request such as “GitHub should let me FTP up a documentation site for my
+project.” What this customer is really trying to say is “I want a simple way to
+publish content related to my project,” but they’re used to what’s already out
+there, and so they pose the request in terms that are familiar to them. We could
+have implemented some horrible FTP based solution as requested, but we looked
+deeper into the underlying question and now we allow you to publish content by
+simply pushing a Git repository to your account. This meets requirements of both
+functionality &lt;em&gt;and&lt;/em&gt; elegance.&lt;/p&gt;
+
+&lt;p&gt;Another company that understands this concept at a fundamental level is Apple.
+I’m sure plenty of people asked Apple to make a phone but Steve Jobs and his
+posse looked beneath the request and figured out what people really wanted: a
+nice looking, simple to use, and easy to sync mobile device that kicked some
+serious ass. And that’s the secret. Don’t give your customers what they ask for;
+give them what they &lt;em&gt;want&lt;/em&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;have-fun&quot;&gt;Have Fun&lt;/h2&gt;
+
+&lt;p&gt;I went to college at a little school in California called Harvey Mudd. Yeah, I
+know you haven’t heard of it, but if you remember those US News &amp;amp; World Report
+“Best Colleges” books that you obsessed over in highschool (ok, maybe you
+didn’t, but I did), Harvey Mudd was generally ranked as the engineering school
+with the greatest number of hours of homework per night. Yes, more than MIT, and
+yes, more than Caltech. It turned out to be true, as far as I can tell. I have
+fond memories of freaking out about ridiculously complex spring/mass/damper
+systems and figuring the magnetic flux of a wire wrapped around a cylinder in a
+double helix. We studied hard–very hard. But we played hard too. It was the
+only thing that could possibly keep us sane.&lt;/p&gt;
+
+&lt;p&gt;Working on a startup is like that. It feels a bit like college. You’re working
+on insanely hard projects, but you’re doing it with your best friends in the
+world and you’re having a great time (usually). In both environments, you have
+to goof off a lot in order to balance things out. Burnout is a real and
+dangerous phenomenon. Fostering a playful and creative environment is critical
+to maintaining both your personal health, and the health (and idea output) of
+the company.&lt;/p&gt;
+
+&lt;h2 id=&quot;pay-attention-to-twitter&quot;&gt;Pay attention to Twitter&lt;/h2&gt;
+
+&lt;p&gt;I’ve found Twitter to be an extremely valuable resource for instant feedback. If
+the site is slow for some reason, Twitter will tell me so. If the site is
+unreachable for people in a certain country (I’m looking at you China), I’ll
+find out via Twitter. If that new feature we just released is really awesome,
+I’ll get a nice ego boost by scanning the Twitter search.&lt;/p&gt;
+
+&lt;p&gt;People have a tendency to turn to Twitter to bitch about all the little bugs
+they see on your website, usually appended with the very tiresome “FAIL”. These
+are irksome to read, but added together are worth noticing. Often times these
+innocent tweets will inform a decision about whether an esoteric bug is worth
+adding to the short list. We also created a GitHub account on Twitter that our
+support guy uses to respond to negative tweets. Offering this level of customer
+service almost always turns a disgruntled customer into a happy one.&lt;/p&gt;
+
+&lt;p&gt;If you have an iPhone, I heartily recommend the
+&lt;a href=&quot;http://fanzter.com/products/download/summizer&quot;&gt;Summizer&lt;/a&gt; app from Fanzter, Inc.
+It makes searching, viewing, and responding to tweets a cinch.&lt;/p&gt;
+
+&lt;h2 id=&quot;deploy-at-will&quot;&gt;Deploy at Will!&lt;/h2&gt;
+
+&lt;p&gt;At the first RailsConf I had the pleasure of hearing Martin Fowler deliver an
+amazing keynote. He made some apt metaphors regarding agile development that I
+will now paraphrase and mangle.&lt;/p&gt;
+
+&lt;p&gt;Imagine you’re tasked with building a computer controlled gun that can
+accurately hit a target about 50 meters distant. That is the only requirement.
+One way to do this is to build a complex machine that measures every possible
+variable (wind, elevation, temperature, etc.) before the shot and then takes aim
+and shoots. Another approach is to build a simple machine that fires rapidly and
+can detect where each shot hits. It then uses this information to adjust the aim
+of the next shot, quickly homing in on the target a little at a time.&lt;/p&gt;
+
+&lt;p&gt;The difference between these two approaches is to realize that bullets are
+cheap. By the time the former group has perfected their wind detection
+instrument, you’ll have finished your simple weapon and already hit the target.&lt;/p&gt;
+
+&lt;p&gt;In the world of web development, the target is your ideal offering, the bullets
+are your site deploys, and your customers provide the feedback mechanism. The
+first year of a web offering is a magical one. Your customers are most likely
+early adopters and love to see new features roll out every few weeks. If this
+results in a little bit of downtime, they’ll easily forgive you, as long as
+those features are sweet. In the early days of GitHub, we’d deploy up to ten
+times in one afternoon, always inching closer to that target.&lt;/p&gt;
+
+&lt;p&gt;Make good use of that first year, because once the big important customers start
+rolling in, you have to be a lot more careful about hitting one of them with a
+stray bullet. Later in the game, downtime and botched deploys are money lost and
+you have to rely more on building instruments to predict where you should aim.&lt;/p&gt;
+
+&lt;h2 id=&quot;you-dont-need-an-office&quot;&gt;You Don’t Need an Office&lt;/h2&gt;
+
+&lt;p&gt;All four fulltime GitHub employees work in the San Francisco area, and yet we
+have no office. But we’re not totally virtual either. In fact, a couple times a
+week you’ll find us at a cafe in North Beach, huddled around a square table that
+was made by nailing 2x4s to an ancient fold-out bulletin board. It’s no Google
+campus, but the rent is a hell of a lot cheaper and the drinks are just as good!&lt;/p&gt;
+
+&lt;p&gt;This is not to say that we haven’t looked at a few places to call home. Hell, we
+almost leased an old bar. But in the end there’s no hurry to settle down. We’re
+going to wait until we find the perfect office. Until then, we can invest the
+savings back into the company, or into our pockets. For now, I like my couch and
+the cafe just fine.&lt;/p&gt;
+
+&lt;p&gt;Of course, none of this would be possible without 37signals’
+&lt;a href=&quot;http://www.campfirenow.com/&quot;&gt;Campfire&lt;/a&gt; web-based chat and the
+very-difficult-to-find-but-totally-amazing
+&lt;a href=&quot;http://productblog.37signals.com/products/2008/10/propane-takes-c.html&quot;&gt;Propane&lt;/a&gt;
+OSX desktop app container that doubles the awesome. Both highly recommended.&lt;/p&gt;
+
+&lt;h2 id=&quot;hire-through-open-source&quot;&gt;Hire Through Open Source&lt;/h2&gt;
+
+&lt;p&gt;Beyond the three cofounders of GitHub, we’ve hired one full time developer
+(Scott Chacon) and one part time support specialist (Tekkub).&lt;/p&gt;
+
+&lt;p&gt;We hired Tekkub because he was one of the earliest GitHub users and actively
+maintains more than 75 projects (WoW addons mostly) on GitHub and was very
+active in sending us feedback in the early days. He would even help people out
+in the IRC channel, simply because he enjoyed doing so.&lt;/p&gt;
+
+&lt;p&gt;I met Scott at one of the San Francisco Ruby meetups where he was presenting on
+one of his myriad Git-centric projects. Scott had been working with Git long
+before anyone else in the room. He was also working on a pure Ruby
+implementation of Git at the same time I was working on my fork/exec based Git
+bindings. It was clear to me then that depending on how things went down, he
+could become either a powerful ally or a dangerous foe. Luckily, we all went
+drinking afterwards and we became friends. Not long after, Scott started
+consulting for us and wrote the entire backend for what you now know of as
+&lt;a href=&quot;http://gist.github.com/&quot;&gt;Gist&lt;/a&gt;. We knew then that we would do whatever it took
+to hire Scott full time. There would be no need for an interview or references.
+We already knew everything we needed to know in order to make him an offer
+without the slightest reservation.&lt;/p&gt;
+
+&lt;p&gt;The lesson here is that it’s far easier and less risky to hire based on relevant
+past performance than it is to hire based on projected future performance.
+There’s a corollary that also comes into play: if you’re looking to work for a
+startup (or anyone for that matter), contribute to the community that surrounds
+it. Use your time and your code to prove that you’re the best one for the job.&lt;/p&gt;
+
+&lt;h2 id=&quot;trust-your-team&quot;&gt;Trust your Team&lt;/h2&gt;
+
+&lt;p&gt;There’s nothing I hate more than micromanagers. When I was doing graphic design
+consulting 5 years ago I had a client that was very near the Platonic form of a
+micromanager. He insisted that I travel to his office where I would sit in the
+back room at an old Mac and design labels and catalogs and touch up photographs
+of swimwear models (that part was not so bad!). While I did these tasks he would
+hover over me and bark instructions. “Too red! Can you make that text smaller?
+Get rid of those blemishes right there!” It drove me absolutely batty.&lt;/p&gt;
+
+&lt;p&gt;This client could have just as easily given me the task at the beginning of the
+day, gone and run the business, and come back in 6 hours whereupon I would have
+created better designs twice as fast as if he were treating me like a robot that
+converted his speech into Photoshop manipulations. By treating me this way, he
+was marginalizing my design skills and wasting both money and talent.&lt;/p&gt;
+
+&lt;p&gt;Micromanagement is symptomatic of a lack of trust. The remedy for this ailment
+is to hire experts and then trust their judgment. In a startup, you can
+drastically reduce momentum by applying micromanagement, or you can boost
+momentum by giving trust. It’s pretty amazing what can happen when a group of
+talented people who trust each other get together and decide to make something
+awesome.&lt;/p&gt;
+
+&lt;h2 id=&quot;you-dont-need-venture-capital&quot;&gt;You Don’t Need Venture Capital&lt;/h2&gt;
+
+&lt;p&gt;A lot has been written recently about how the venture capital world is changing.
+I don’t pretend to be an expert on the subject, but I’ve learned enough to say
+that a web startup like ours doesn’t need any outside money to succeed. I know
+this because we haven’t taken a single dime from investors. We bootstrapped the
+company on a few thousand dollars and became profitable the day we opened to the
+public and started charging for subscriptions.&lt;/p&gt;
+
+&lt;p&gt;In the end, every startup is different, and the only person that can decide if
+outside money makes sense is you. There are a million things that could drive
+you to seek and accept investment, but you should make sure that doing so is in
+your best interest, because it’s quite possible that you don’t &lt;em&gt;need&lt;/em&gt; to do so.
+One of the reasons I left my last job was so that I could say “the buck stops
+here.” If we’d taken money, I would no longer be able to say that.&lt;/p&gt;
+
+&lt;h2 id=&quot;open-source-whatever-you-can&quot;&gt;Open Source Whatever You Can&lt;/h2&gt;
+
+&lt;p&gt;In order for GitHub to talk to Git repositories, I created the first ever Ruby
+Git bindings. Eventually, this library become quite complete and we were faced
+with a choice: Do we open source it or keep it to ourselves? Both approaches
+have benefits and drawbacks. Keeping it private means that the hurdle for
+competing Ruby-based Git hosting sites would be higher, giving us an advantage.
+But open sourcing it would mean that&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;NOTE: This is where the post ended and remained frozen in carbonite until
+today. I intend to write a follow up post on our open source philosophy at
+GitHub in the near future. I’m sure the suspense is killing you!&lt;/b&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://news.ycombinator.com/item?id=2384320&quot;&gt;Discuss this post on Hacker News&lt;/a&gt;&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Designer, Architect, Developer</title>
+   <link href="http://tom.preston-werner.com/2010/12/11/designer-architect-developer.html"/>
+   <updated>2010-12-11T00:00:00-05:00</updated>
+   <id>http://tom.preston-werner.com/2010/12/11/designer-architect-developer</id>
+   <content type="html">&lt;h1 id=&quot;designer-architect-developer&quot;&gt;Designer, Architect, Developer&lt;/h1&gt;
+
+&lt;p class=&quot;meta&quot;&gt;11 Dec 2010 - San Francisco&lt;/p&gt;
+
+&lt;p&gt;Over the last six years I’ve bootstrapped three successful enterprises (Cube6 Media, Gravatar, and GitHub) and failed to gain traction with a handful of others. After a lot of thought and reflections on these experiences, I’ve identified three major skills that should be present in order to best build a successful web application. These roles can be loosely defined as the Designer, the Architect, and the Developer.&lt;/p&gt;
+
+&lt;p&gt;In college I spent a lot of time in the campus dark room dipping rolls of film and sheets of paper into various chemical baths beneath a dim red light. The most interesting part, though, was mounting the negative into the projector and exposing the photo paper. Every time I turned on the bright light of the projector I was reminded of a saying that has stuck with me ever since: “A photograph is nothing more than an image created by light.” Think about that for a second. The only way the photograph, and hence, the viewer, interact with the original subject is via the light that was captured. None of the fancy flashes, soft boxes, bounces, umbrellas, or backdrops mean a thing if the light they produce or redirect is in the wrong place. If the light is bad, the photograph is bad.&lt;/p&gt;
+
+&lt;p&gt;I think the same concept holds true for web applications. Adapting the saying for our own situation, I would say: “A web application is nothing more than an experience created by design.” Users can’t see what technology you use or whether you follow an agile development process or not. All they experience is what’s on the screen. It can’t be confusing, it can’t look amateur, and it can’t have spelling errors. If the UX is bad, the web application is bad. It’s that simple.&lt;/p&gt;
+
+&lt;p&gt;The way you get good UX is by having a good designer. Someone on the team must be skilled not only in making things pretty, but in making them usable as well. Without a good UX/visual design, you may as well not even bother. It’s impossible to stress how important this is.&lt;/p&gt;
+
+&lt;p&gt;Design comes first. It defines what you will build. Once you have an idea of what you’re creating, you need to figure out how to make it happen. That’s where the Architect comes in.&lt;/p&gt;
+
+&lt;p&gt;With the recent explosion of open source solutions to common problems like databases, web frameworks, job processors, messaging systems, etc, you need a team member that has a broad understanding of the technology landscape. The choices you make early on will impact your company for many years, and the wrong choices can spell disaster. The role of the Architect is to choose the best tools for the job, and to decide when new tools need to be created.&lt;/p&gt;
+
+&lt;p&gt;The Architect must also be ready to scale any piece of the site when you start attracting users. There’s a fine line between premature optimization and crumbling under the wave of thousands of new signups. A good architect will always be one step ahead of the curve, laying the groundwork for future scaling needs just before they are needed.&lt;/p&gt;
+
+&lt;p&gt;Design and architecture dictate what you build and how you build it, but without someone to do the construction, you’re dead in the water. The role of the Developer is to turn the wishes of the Designer into reality while staying within the constraints that the Architect has put forth. In addition, the Developer has to ensure that the codebase remains healthy and protect against technical debt. Sloppy development up front means a huge amount of wasted effort later on.&lt;/p&gt;
+
+&lt;p&gt;The three roles of the Designer, the Architect, and the Developer may reside in a single person, but it’s much more common to see groups of two or three people satisfy all these skills. In fact, the best founding teams are those where everyone fills some combination of roles. This fosters an environment of friendly argument that leads to better decisions.&lt;/p&gt;
+
+&lt;p&gt;But whatever you do, make sure your team fills all of these roles. Once you do, executing on your idea should come easily!&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Optimize for Happiness</title>
+   <link href="http://tom.preston-werner.com/2010/10/18/optimize-for-happiness.html"/>
+   <updated>2010-10-18T00:00:00-04:00</updated>
+   <id>http://tom.preston-werner.com/2010/10/18/optimize-for-happiness</id>
+   <content type="html">&lt;h1 id=&quot;optimize-for-happiness&quot;&gt;Optimize for Happiness&lt;/h1&gt;
+
+&lt;p class=&quot;meta&quot;&gt;18 October 2010 - San Francisco&lt;/p&gt;
+
+&lt;p&gt;Two days ago I had the pleasure of speaking at Startup School, a yearly conference on entrepreneurism put on by the great folks at Y Combinator. Never before have I see such a high concentration of smart ambitious people in one place.&lt;/p&gt;
+
+&lt;p&gt;You can watch the recording of my thirty minute slot on Youtube:&lt;/p&gt;
+
+&lt;center&gt;&lt;iframe width=&quot;560&quot; height=&quot;315&quot; src=&quot;https://www.youtube.com/embed/T4VtBcmbbSs&quot; frameborder=&quot;0&quot; allowfullscreen=&quot;&quot;&gt;&lt;/iframe&gt;&lt;/center&gt;
+
+&lt;p&gt;Since I only had about 25 minutes for the talk and 5 minutes for questions, I wanted to expand upon and clarify some of the ideas I introduced during the talk and then make myself available for additional questions. So today (Monday, 18 October 2010) I’ll be answering any questions you have via Hacker News:&lt;/p&gt;
+
+&lt;center&gt;&lt;b&gt;&lt;a href=&quot;http://news.ycombinator.com/item?id=1804443&quot;&gt;Ask me a question on HN!&lt;/a&gt;&lt;/b&gt;&lt;/center&gt;
+
+&lt;p&gt;The very first commit to GitHub was made exactly three years ago tomorrow. In that time our team of thirteen has signed up over 420,000 developers and now hosts 1.3 million Git repositories, making us the largest code host on the planet. And we’ve done all of this without ever taking a dime of funding from outside the company. In fact, even within the company we only invested a few thousand dollars out of our own pockets during the first months to cover legal fees.&lt;/p&gt;
+
+&lt;p&gt;During the presentation I talk about a choice between optimizing for happiness and optimizing for money. When I say “optimizing for money” I mean following the traditional venture capital route of raising a ton of money to stash in your bank account and going for a huge exit. The unfortunate reality of this approach is that for aspiring entrepreneurs that are not well connected to the VC world, it can take an extraordinary amount of time and effort to raise that money. Even if you are able to raise capital, you are suddenly responsible to your investors and will need to align your interests with theirs.&lt;/p&gt;
+
+&lt;p&gt;In a world dominated by news about Facebook, Apple, Google, YouTube, Zappos, and other companies heavily funded by venture capital, it’s easy to forget that you can still build a highly profitable business with significant impact on a global market without having to first spend three months on Sand Hill Road asking for permission to build your product.&lt;/p&gt;
+
+&lt;p&gt;The infrastructure components necessary to run an internet business are finally cheap enough that you can get started without a huge up-front investment. In the months that you would traditionally spend in glass-walled conference rooms you can now build a sophisticated prototype of your product and start getting users signed up and engaging you with useful feedback.&lt;/p&gt;
+
+&lt;p&gt;This is what I mean by optimizing for happiness: I’m a hacker; I’m happy when I’m building things of value, not when I’m writing a business plan filled with make believe numbers.&lt;/p&gt;
+
+&lt;p&gt;When Chris and I started GitHub, I was working full time at Powerset and Chris was doing consulting work and plugging away on a product of his own. GitHub became the leisure activity that I worked on when I got home from the office. I could craft it however I pleased, and there was nobody telling me what to do. This feeling of control and ownership of something you own is intoxicating.&lt;/p&gt;
+
+&lt;p&gt;Within three months we had a simple product and moved into private beta. In six months we launched to the public and started charging for private plans. We’ve been profitable every month since public launch except for one (in which we hired two new employees at once). We did this by making a paycheck via other means until GitHub was generating enough revenue to support us full time at about 2/3 of what we were accustomed to making. We then raised our salaries over the next months when we hit specific revenue goals that allowed us to remain profitable. This happened about one year after inception.&lt;/p&gt;
+
+&lt;p&gt;A side effect of bootstrapping a sustainable company is what I like to call &lt;b&gt;infinite runway.&lt;/b&gt; This is another element of optimizing for happiness. With venture backed endeavors you generally find that during the first several years the numbers in your bank account are perpetually decreasing, giving your company an expiration date. Your VCs have encouraged you to grow fast and spend hard, which makes perfect sense for them, but not necessary for you. Not if you’re trying to optimize for happiness.&lt;/p&gt;
+
+&lt;p&gt;VCs want to see quick success or quick failure. They are optimizing for money. There’s nothing wrong with that as long as you want the same things they do. But if you’re like me, then you care more about building a kickass product than you do about having a ten figure exit. If that’s true, then maybe you should be optimizing for happiness. One way to do this is by bootstrapping a sustainable business with infinite runway. When there are fewer potentially catastrophic events on the horizon, you’ll find yourself smiling a lot more often.&lt;/p&gt;
+
+&lt;p&gt;The ironic thing about bootstrapping and venture capital is that once you demonstrate some success, investors will come to YOU. When this happens you will be in a much better place to make a more reasoned choice about taking on additional capital and all the complexities that come with it. Talking to VCs with some leverage in your back pocket is an entirely different game from throwing yourself in front of a conference table full of general partners and trying to persuade them that you’re worth their time and money. Power is happiness.&lt;/p&gt;
+
+&lt;p&gt;There are other really great things you can do when you optimize for happiness. You can throw away things like financial projections, hard deadlines, ineffective executives that make investors feel safe, and everything that hinders your employees from building amazing products.&lt;/p&gt;
+
+&lt;p&gt;At GitHub we don’t have meetings. We don’t have set work hours or even work days. We don’t keep track of vacation or sick days. We don’t have managers or an org chart. We don’t have a dress code. We don’t have expense account audits or an HR department.&lt;/p&gt;
+
+&lt;p&gt;We pay our employees well and give them the tools they need to do their jobs as efficiently as possible. We let them decide what they want to work on and what features are best for the customers. We pay for them to attend any conference at which they’ve gotten a speaking slot. If it’s in a foreign country, we pay for another employee to accompany them because traveling alone sucks. We show them the profit and loss statements every month. We expect them to be responsible.&lt;/p&gt;
+
+&lt;p&gt;We make decisions based on the merits of the arguments, not on who is making them. We strive every day to be better than we were the day before.&lt;/p&gt;
+
+&lt;p&gt;We hold our board meetings in bars.&lt;/p&gt;
+
+&lt;p&gt;We do all this because we’re optimizing for happiness, and because there’s nobody to tell us that we can’t.&lt;/p&gt;
+
+&lt;center&gt;&lt;b&gt;&lt;a href=&quot;http://news.ycombinator.com/item?id=1804443&quot;&gt;Ask me a question on HN!&lt;/a&gt;&lt;/b&gt;&lt;/center&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Readme Driven Development</title>
+   <link href="http://tom.preston-werner.com/2010/08/23/readme-driven-development.html"/>
+   <updated>2010-08-23T00:00:00-04:00</updated>
+   <id>http://tom.preston-werner.com/2010/08/23/readme-driven-development</id>
+   <content type="html">&lt;h1 id=&quot;readme-driven-development&quot;&gt;Readme Driven Development&lt;/h1&gt;
+
+&lt;p class=&quot;meta&quot;&gt;23 August 2010 - San Francisco&lt;/p&gt;
+
+&lt;p&gt;I hear a lot of talk these days about TDD and BDD and Extreme Programming and SCRUM and stand up meetings and all kinds of methodologies and techniques for developing better software, but it’s all irrelevant unless the software we’re building meets the needs of those that are using it. Let me put that another way. A perfect implementation of the wrong specification is worthless. By the same principle a beautifully crafted library with no documentation is also damn near worthless. If your software solves the wrong problem or nobody can figure out how to use it, there’s something very bad going on.&lt;/p&gt;
+
+&lt;p&gt;Fine. So how do we solve this problem? It’s easier than you think, and it’s important enough to warrant its very own paragraph.&lt;/p&gt;
+
+&lt;p&gt;Write your Readme first.&lt;/p&gt;
+
+&lt;p&gt;First. As in, before you write any code or tests or behaviors or stories or ANYTHING. I know, I know, we’re programmers, dammit, not tech writers! But that’s where you’re wrong. Writing a Readme is absolutely essential to writing good software. Until you’ve written about your software, you have no idea what you’ll be coding. Between The Great Backlash Against Waterfall Design and The Supreme Acceptance of Agile Development, something was lost. Don’t get me wrong, waterfall design takes things way too far. Huge systems specified in minute detail end up being the WRONG systems specified in minute detail. We were right to strike it down. But what took its place is too far in the other direction. Now we have projects with short, badly written, or entirely missing documentation. Some projects don’t even have a Readme!&lt;/p&gt;
+
+&lt;p&gt;This is not acceptable. There must be some middle ground between reams of technical specifications and no specifications at all. And in fact there is. That middle ground is the humble Readme.&lt;/p&gt;
+
+&lt;p&gt;It’s important to distinguish Readme Driven Development from Documentation Driven Development. RDD could be considered a subset or limited version of DDD. By restricting your design documentation to a single file that is intended to be read as an introduction to your software, RDD keeps you safe from DDD-turned-waterfall syndrome by punishing you for lengthy or overprecise specification. At the same time, it rewards you for keeping libraries small and modularized. These simple reinforcements go a long way towards driving your project in the right direction without a lot of process to ensure you do the right thing.&lt;/p&gt;
+
+&lt;p&gt;By writing your Readme first you give yourself some pretty significant advantages:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Most importantly, you’re giving yourself a chance to think through the project without the overhead of having to change code every time you change your mind about how something should be organized or what should be included in the Public API. Remember that feeling when you first started writing automated code tests and realized that you caught all kinds of errors that would have otherwise snuck into your codebase? That’s the exact same feeling you’ll have if you write the Readme for your project before you write the actual code.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;As a byproduct of writing a Readme in order to know what you need to implement, you’ll have a very nice piece of documentation sitting in front of you. You’ll also find that it’s much easier to write this document at the beginning of the project when your excitement and motivation are at their highest. Retroactively writing a Readme is an absolute drag, and you’re sure to miss all kinds of important details when you do so.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;If you’re working with a team of developers you get even more mileage out of your Readme. If everyone else on the team has access to this information before you’ve completed the project, then they can confidently start work on other projects that will interface with your code. Without any sort of defined interface, you have to code in serial or face reimplementing large portions of code.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;It’s a lot simpler to have a discussion based on something written down. It’s easy to talk endlessly and in circles about a problem if nothing is ever put to text. The simple act of writing down a proposed solution means everyone has a concrete idea that can be argued about and iterated upon.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Consider the process of writing the Readme for your project as the true act of creation. This is where all your brilliant ideas should be expressed. This document should stand on its own as a testament to your creativity and expressiveness. The Readme should be the single most important document in your codebase; writing it first is the proper thing to do.&lt;/p&gt;
+
+&lt;p&gt;–&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://news.ycombinator.com/item?id=1627246&quot;&gt;Discuss this post on Hacker News&lt;/a&gt;&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>TomDoc - Reasonable Ruby Documentation</title>
+   <link href="http://tom.preston-werner.com/2010/05/11/tomdoc-reasonable-ruby-documentation.html"/>
+   <updated>2010-05-11T00:00:00-04:00</updated>
+   <id>http://tom.preston-werner.com/2010/05/11/tomdoc-reasonable-ruby-documentation</id>
+   <content type="html">&lt;h1 id=&quot;tomdoc---reasonable-ruby-documentation&quot;&gt;TomDoc - Reasonable Ruby Documentation&lt;/h1&gt;
+
+&lt;p class=&quot;meta&quot;&gt;11 May 2016 - San Francisco&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://rdoc.rubyforge.org&quot;&gt;RDoc&lt;/a&gt; is an abomination. It’s ugly to read in plain
+text, requires the use of the inane :nodoc: tag to prevent private method
+documentation from showing up in final rendering, and does nothing to encourage
+complete or unambiguous documentation of classes, methods, or parameters.
+&lt;a href=&quot;http://yardoc.org&quot;&gt;YARD&lt;/a&gt; is much better but goes too far in the other direction
+(and still doesn’t look good in plain text). Providing an explicit way to
+specify parameters and types is great, but having to remember a bunch of strict
+tag names in order to be compliant is not a good way to encourage coders to
+write documentation. And again we see a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@private&lt;/code&gt; tag that’s necessary to hide
+docs from the final render.&lt;/p&gt;
+
+&lt;p&gt;Three years ago, after suffering with these existing documentation formats for
+far too long, I started using my own documentation format. It looked a bit like
+RDoc but had a set of conventions for specifying parameters, return values, and
+the expected types. It used plain language and full sentences so that a human
+could read and understand it without having to parse machine-oriented tags or
+crufty markup. I called this format TomDoc, because if Linus can name stuff
+after himself, then why can’t I?&lt;/p&gt;
+
+&lt;p&gt;After years in the making, TomDoc is finally a well specified documentation
+format. You can find the full spec at &lt;a href=&quot;http://tomdoc.org&quot;&gt;http://tomdoc.org&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;But enough talk. Here’s a sample of what a TomDoc’d method might look like:&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;# Public: Duplicate some text an abitrary number of times.&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# text  - The String to be duplicated.&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# count - The Integer number of times to duplicate the text.&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Examples&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   multiplex('Tom', 4)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   # =&amp;gt; 'TomTomTomTom'&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Returns the duplicated String.&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;multiplex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;At first glance you’ll notice a few things. First, and most important, is that
+the documentation looks nice in plain text. When I’m working on a project, I
+need to be able to scan and read method documentation quickly. Littering the
+docs with tags and markup (especially HTML markup) is not acceptable. Code
+documentation should be optimized for human consumption. Second, all parameters
+and return values, and their expected types are specified. Types are generally
+denoted by class name. Because Ruby is so flexible, you are not constrained by a
+rigid type declaration syntax and are free to explain precisely how the expected
+types may vary under different circumstances. Finally, the basic layout is
+designed to be easy to remember. Once you commit a few simple conventions to
+memory, writing documentation becomes second nature, with all of the tricky
+decision making already done for you.&lt;/p&gt;
+
+&lt;p&gt;Today’s Ruby libraries suffer deeply from haphazard versioning schemes. Even
+RubyGems itself does not follow a sane or predictable versioning pattern. This
+lack of discipline stems from the absence of well defined Public APIs. TomDoc
+attempts to solve this problem by making it simple to define an unambiguous
+Public API for your library. Instead of assuming that all classes and methods
+are intended for public consumption, TomDoc makes the Public API opt-in. To
+denote that something is public, all you have to do is preface the main
+description with “Public:”. By forcing you to explicitly state that a class or
+method is intended for public consumption, a deliberate and thoughtful Public
+API is automatically constructed that can inform disciplined version changes
+according to the tenets of &lt;a href=&quot;http://semver.org&quot;&gt;Semantic Versioning&lt;/a&gt;. In
+addition, the prominent display of “Public” in a method description ensures that
+developers are made aware of the sensitive nature of the method and do not
+carelessly change the signature of something in the Public API.&lt;/p&gt;
+
+&lt;p&gt;Once a Public API has been established, some very exciting things become
+possible. We’re currently working on a processing tool that will render TomDoc
+into various forms (terminal, HTML, etc). If you run this tool on a library,
+you’ll get a printout of the Public API documentation. You can publish this
+online so that others have easy access to it. When you roll a new version of the
+library, you can run the tool again, giving it a prior version as a base, and
+have it automatically display only the methods that have changed. This diff will
+be extremely useful for users while they upgrade to the new version (or so they
+can evaluate whether an upgrade is warranted)!&lt;/p&gt;
+
+&lt;p&gt;While I’ve been using various nascent forms of TomDoc for several years, we’re
+just now starting to adopt it for everything we do at GitHub. Now that I’ve
+formalized the spec it will be easy for the entire team to write compliant
+TomDoc. The goal is to have every class, method, and accessor of every GitHub
+library documented. In the future, once we have proper tooling, we’d even like
+to create a unit test that will fail if anything is missing documentation.&lt;/p&gt;
+
+&lt;p&gt;TomDoc is still a rough specification so I’m initially releasing it as 0.9.0.
+Over the coming months I’ll make any necessary changes to address user concerns
+and release a 1.0.0 version once things have stabilized. If you’d like to
+suggest changes, please open an issue on the &lt;a href=&quot;http://github.com/mojombo/tomdoc&quot;&gt;TomDoc GitHub
+repository&lt;/a&gt;.&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>The Git Parable</title>
+   <link href="http://tom.preston-werner.com/2009/05/19/the-git-parable.html"/>
+   <updated>2009-05-19T00:00:00-04:00</updated>
+   <id>http://tom.preston-werner.com/2009/05/19/the-git-parable</id>
+   <content type="html">&lt;h1 id=&quot;the-git-parable&quot;&gt;The Git Parable&lt;/h1&gt;
+
+&lt;p class=&quot;meta&quot;&gt;19 May 2009 - San Francisco&lt;/p&gt;
+
+&lt;p&gt;Git is a simple, but extremely powerful system. Most people try to teach Git by
+demonstrating a few dozen commands and then yelling “tadaaaaa.” I believe this
+method is flawed. Such a treatment may leave you with the ability to use Git to
+perform simple tasks, but the Git commands will still feel like magical
+incantations. Doing anything out of the ordinary will be terrifying. Until you
+understand the concepts upon which Git is built, you’ll feel like a stranger in
+a foreign land.&lt;/p&gt;
+
+&lt;p&gt;The following parable will take you on a journey through the creation of a
+Git-like system from the ground up. Understanding the concepts presented here
+will be the most valuable thing you can do to prepare yourself to harness the
+full power of Git. The concepts themselves are quite simple, but allow for an
+amazing wealth of functionality to spring into existence. Read this parable all
+the way through and you should have very little trouble mastering the various
+Git commands and wielding the awesome power that Git makes available to you.&lt;/p&gt;
+
+&lt;h2 id=&quot;the-parable&quot;&gt;The Parable&lt;/h2&gt;
+
+&lt;p&gt;Imagine that you have a computer that has nothing on it but a text editor and a
+few file system commands. Now imagine that you have decided to write a large
+software program on this system. Because you’re a responsible software
+developer, you decide that you need to invent some sort of method for keeping
+track of versions of your software so that you can retrieve code that you
+previously changed or deleted. What follows is a story about how you might
+design one such version control system (VCS) and the reasoning behind those
+design choices.&lt;/p&gt;
+
+&lt;h2 id=&quot;snapshots&quot;&gt;Snapshots&lt;/h2&gt;
+
+&lt;p&gt;Alfred is a friend of yours that works down at the mall as a photographer in one
+of those “Special Moments” photo boutiques. All day long he takes photos of
+little kids posing awkwardly in front of jungle or ocean backdrops. During one
+of your frequent lunches at the pretzel stand, Alfred tells you a story about a
+woman named Hazel who brings her daughter in for a portrait every year on the
+same day. “She brings the photos from all the past years with her,” Alfred tells
+you. “She likes to remember what her daughter was like at each different stage,
+as if the snapshots really let her move back and forth in time to those saved
+memories.”&lt;/p&gt;
+
+&lt;p&gt;Like some sort of formulaic plot device, Alfred’s innocent statement acts as a
+catalyst for you to see the ideal solution to your version control dilemma.
+Snapshots, like save points in a video game, are really what you care about when
+you need to interact with a VCS. What if you could take snapshots of your
+codebase at any time and resurrect that code on demand? Alfred reads the dawning
+realization spreading across your face and knows you’re about to leave him
+without another word to go back and implement whatever genius idea he just
+caused you to have. You do not disappoint him.&lt;/p&gt;
+
+&lt;p&gt;You start your project in a directory named &lt;code&gt;working&lt;/code&gt;. As you code,
+you try to write one feature at a time. When you complete a self-contained
+portion of a feature, you make sure that all your files are saved and then make
+a copy of the entire working directory, giving it the name
+&lt;code&gt;snapshot-0&lt;/code&gt;. After you perform this copy operation, you make sure to
+never again change the code files in the new directory. After the next chunk of
+work, you perform another copy, only this time the new directory gets the name
+&lt;code&gt;snapshot-1&lt;/code&gt;, and so on.&lt;/p&gt;
+
+&lt;p&gt;To make it easy to remember what changes you made in each snapshot, you add a
+special file named &lt;code&gt;message&lt;/code&gt; to each snapshot directory that contains
+a summary of the work that you did and the date of completion. By printing the
+contents of each message, it becomes easy to find a specific change that you
+made in the past, in case you need to resurrect some old code.&lt;/p&gt;
+
+&lt;h2 id=&quot;branches&quot;&gt;Branches&lt;/h2&gt;
+
+&lt;p&gt;After a bit of time on the project, a candidate for release begins to emerge.
+Late nights at the keyboard finally yield &lt;code&gt;snapshot-99&lt;/code&gt;, the nascent
+form of what will become Release Version 1.0. It comes to pass that this
+snapshot is packaged and distributed to the eagerly awaiting masses. Stoked by
+excellent response to your software, you push forward, determined to make the
+next version an even bigger success.&lt;/p&gt;
+
+&lt;p&gt;Your VCS has so far been a faithful companion. Old versions of your code are
+there when you need them and can be accessed with ease. But not long after the
+release, bug reports start to come in. Nobody’s perfect, you reassure yourself,
+and &lt;code&gt;snapshot-99&lt;/code&gt; is readily retrievable, glad to be brought back to
+life for the purposes of applying bug fixes.&lt;/p&gt;
+
+&lt;p&gt;Since the release, you’ve created 10 new snapshots. This new work must not be
+included in the 1.0.1 bug fix version you now need to create. To solve this, you
+copy &lt;code&gt;snapshot-99&lt;/code&gt; to &lt;code&gt;working&lt;/code&gt; so that your working
+directory is at exactly the point where Version 1.0 was released. A few swift
+lines of code and the bug is fixed in the working directory.&lt;/p&gt;
+
+&lt;p&gt;It is here that a problem becomes apparent. The VCS deals very well with linear
+development, but for the first time ever, you need to create a new snapshot that
+is not a direct descendent of the preceding snapshot. If you create a
+&lt;code&gt;snapshot-110&lt;/code&gt; (remember that you created 10 snapshots since the
+release), then you’ll be interrupting the linear flow and will have no way of
+determining the ancestry of any given snapshot. Clearly, you need something more
+powerful than a linear system.&lt;/p&gt;
+
+&lt;p&gt;Studies show that even short exposures to nature can help recharge the mind’s
+creative potential. You’ve been sitting behind the artificially polarized light
+of your monitor for days on end. A walk through the woods in the brisk Autumn
+air will do you some good and with any luck, will help you arrive at an ideal
+solution to your problem.&lt;/p&gt;
+
+&lt;p&gt;The great oaks that line the trail have always appealed to you. They seem to
+stand stark and proud against the perfectly blue sky. Half the ruddy leaves have
+departed from their branches, leaving an intricate pattern of branches in their
+wake. Fixating on one of the thousands of branch tips you idly try to follow it
+back to the solitary trunk. This organically produced structure allows for such
+great complexity, but the rules for finding your way back to the trunk are so
+simple, and perfect for keeping track of multiple lines of development! It turns
+out that what they say about nature and creativity are true.&lt;/p&gt;
+
+&lt;p&gt;By looking at your code history as a tree, solving the problem of ancestry
+becomes trivial. All you need to do is include the name of the parent snapshot
+in the &lt;code&gt;message&lt;/code&gt; file you write for each snapshot. Adding just a
+single upstream pointer will enable you to easily and accurately trace the
+history of any given snapshot all the way back to the root.&lt;/p&gt;
+
+&lt;h2 id=&quot;branch-names&quot;&gt;Branch Names&lt;/h2&gt;
+
+&lt;p&gt;Your code history is now a tree. Instead of having a single latest snapshot, you
+have two: one for each branch. With a linear system, your sequential numbering
+system let you easily identify the latest snapshot. Now, that ability is lost.&lt;/p&gt;
+
+&lt;p&gt;Creating new development branches has become so simple that you’ll want to take
+advantage of it all the time. You’ll be creating branches for fixes to old
+releases, for experiments that may not pan out; indeed it becomes possible to
+create a new branch for every feature you begin!&lt;/p&gt;
+
+&lt;p&gt;But like everything good in life, there is a price to be paid. Each time you
+create a new snapshot, you must remember that the new snapshot becomes the
+latest on its branch. Without this information, switching to a new branch would
+become a laborious process indeed.&lt;/p&gt;
+
+&lt;p&gt;Every time you create a new branch you probably give it a name in your head.
+“This will be the Version 1.0 Maintenance Branch,” you might say. Perhaps you
+refer to the former linear branch as the “master” branch.&lt;/p&gt;
+
+&lt;p&gt;Think about this a little further, though. From the perspective of a tree, what
+does it mean to name a branch? Naming every snapshot that appears in the history
+of a branch would do the trick, but requires the storage of a potentially large
+amount of data. Additionally, it still wouldn’t help you efficiently locate the
+latest snapshot on a branch.&lt;/p&gt;
+
+&lt;p&gt;The least amount of information necessary to identify a branch is the location
+of the latest snapshot on that branch. If you need to know the list of snapshots
+that are part of the branch you can easily trace the parentage.&lt;/p&gt;
+
+&lt;p&gt;Storing the branch names is trivial. In a file named &lt;code&gt;branches&lt;/code&gt;,
+stored outside of any specific snapshot, you simply list the name/snapshot pairs
+that represent the tips of branches. To switch to a named branch you need only
+look up the snapshot for the corresponding name from this file.&lt;/p&gt;
+
+&lt;p&gt;Because you’re only storing the latest snapshot on each branch, creating a new
+snapshot now contains an additional step. If the new snapshot is being created
+as part of a branch, the &lt;code&gt;branches&lt;/code&gt; file must be updated so that the
+name of the branch becomes associated with the new snapshot. A small price to
+pay for the benefit.&lt;/p&gt;
+
+&lt;h2 id=&quot;tags&quot;&gt;Tags&lt;/h2&gt;
+
+&lt;p&gt;After using branches for a while you notice that they can serve two purposes.
+First, they can act as movable pointers to snapshots so that you can keep track
+of the branch tips. Second, they can be pointed at a single snapshot and never
+move.&lt;/p&gt;
+
+&lt;p&gt;The first use case allows you to keep track of ongoing development, things like
+“Release Maintenance”. The second case is useful for labeling points of
+interest, like “Version 1.0” and “Version 1.0.1”.&lt;/p&gt;
+
+&lt;p&gt;Mixing both of these uses into a single file feels messy. Both types are
+pointers to snapshots, but one moves and one doesn’t. For the sake of clarity
+and elegance, you decide to create another file called &lt;code&gt;tags&lt;/code&gt; to
+contain pointers of the second type.&lt;/p&gt;
+
+&lt;p&gt;Keeping these two inherently different pointers in separate files will help you
+from accidentally treating a branch as a tag or vice versa.&lt;/p&gt;
+
+&lt;h2 id=&quot;distributed&quot;&gt;Distributed&lt;/h2&gt;
+
+&lt;p&gt;Working on your own gets pretty lonely. Wouldn’t it be nice if you could invite
+a friend to work on your project with you? Well, you’re in luck. Your friend Zoe
+has a computer setup just like yours and wants to help with the project. Because
+you’ve created such a great version control system, you tell her all about it
+and send her a copy of all your snapshots, branches, and tags so she can enjoy
+the same benefits of the code history.&lt;/p&gt;
+
+&lt;p&gt;It’s great to have Zoe on the team but she has a habit of taking long trips to
+far away places without internet access. As soon as she has the source code, she
+catches a flight to Patagonia and you don’t hear from her for a week. In the
+meantime you both code up a storm. When she finally gets back, you discover a
+critical flaw in your VCS. Because you’ve both been using the same numbering
+system, you each have directories named ‘snapshot-114’, ‘snapshot-115’, and so
+on, but with different contents!&lt;/p&gt;
+
+&lt;p&gt;To make matters worse, you don’t even know who authored the changes in those new
+snapshots. Together, you devise a plan for dealing with these problems. First,
+snapshot messages will henceforth contain author name and email. Second,
+snapshots will no longer be named with simple numbers. Instead, you’ll use the
+contents of the message file to produce a hash. This hash will be guaranteed to
+be unique to the snapshot since no two messages will ever have the same date,
+message, parent, and author. To make sure everything goes smoothly, you both
+agree to use the SHA1 hash algorithm that takes the contents of a file and
+produces a 40 character hexadecimal string. You both update your histories with
+the new technique and instead of clashing ‘snapshot-114’ directories, you now
+have distinct directories named ‘8ba3441b6b89cad23387ee875f2ae55069291f4b’ and
+‘db9ecb5b5a6294a8733503ab57577db96ff2249e’.&lt;/p&gt;
+
+&lt;p&gt;With the updated naming scheme, it becomes trivial for you to fetch all the new
+snapshots from Zoe’s computer and place them next to your existing snapshots.
+Because every snapshot specifies its parent, and identical messages (and
+therefore identical snapshots) have identical names no matter where they are
+created, the history of the codebase can still be drawn as a tree. Only now, the
+tree is comprised of snapshots authored by both Zoe and you.&lt;/p&gt;
+
+&lt;p&gt;This point is important enough to warrant repeating. A snapshot is identified by
+a SHA1 that uniquely identifies it (and its parent). These snapshots can be
+created and moved around between computers without losing their identity or
+where they belong in the history tree of a project. What’s more, snapshots can
+be shared or kept private as you see fit. If you have some experimental
+snapshots that you want to keep to yourself, you can do so quite easily. Just
+don’t make them available to Zoe!&lt;/p&gt;
+
+&lt;h2 id=&quot;offline&quot;&gt;Offline&lt;/h2&gt;
+
+&lt;p&gt;Zoe’s travel habits cause her to spend countless hours on airplanes and boats.
+Most of the places she visits have no readily available internet access. At the
+end of the day, she spends more time offline than online.&lt;/p&gt;
+
+&lt;p&gt;It’s no surprise, then, that Zoe raves about your VCS. All of the day to day
+operations that she needs to do can be done locally. The only time she needs a
+network connection is when she’s ready to share her snapshots with you.&lt;/p&gt;
+
+&lt;h2 id=&quot;merges&quot;&gt;Merges&lt;/h2&gt;
+
+&lt;p&gt;Before Zoe left on her trip, you had asked her to start working off of the
+branch named ‘math’ and to implement a function that generated prime numbers.
+Meanwhile, you were also developing off of the ‘math’ branch, only you were
+writing a function to generate magic numbers. Now that Zoe has returned, you are
+faced with the task of merging these two separate branches of development into a
+single snapshot. Since you both worked on separate tasks, the merge is simple.
+While constructing the snapshot message for the merge, you realize that this
+snapshot is special. Instead of just a single parent, this merge snapshot has
+two parents! The first parent is your latest on the ‘math’ branch and the second
+parent is Zoe’s latest on her ‘math’ branch. The merge snapshot doesn’t contain
+any changes beyond those necessary to merge the two disparate parents into a
+single codebase.&lt;/p&gt;
+
+&lt;p&gt;Once you complete the merge, Zoe fetches all the snapshots that you have that
+she does not, which include your development on the ‘math’ branch and your merge
+snapshot. Once she does this, both of your histories match exactly!&lt;/p&gt;
+
+&lt;h2 id=&quot;rewriting-history&quot;&gt;Rewriting History&lt;/h2&gt;
+
+&lt;p&gt;Like many software developers you have a compulsion to keep your code clean and
+very well organized. This carries over into a desire to keep your code history
+well groomed. Last night you came home after having a few too many pints of
+Guinness at the local brewpub and started coding, producing a handful of
+snapshots along the way. This morning, a review of the code you wrote last night
+makes you cringe a little bit. The code is good overall, but you made a lot of
+mistakes early on that you corrected in later snapshots.&lt;/p&gt;
+
+&lt;p&gt;Let’s say the branch on which you did your drunken development is called ‘drunk’
+and you made three snapshots after you got home from the bar. If the name
+‘drunk’ points at the latest snapshot on that branch, then you can use a useful
+notation to refer to the parent of that snapshot. The notation ‘drunk^’ means
+the parent of the snapshot pointed to by the branch name ‘drunk’. Similarly
+‘drunk^^’ means the grandparent of the ‘drunk’ snapshot. So the three snapshots
+in chronological order are ‘drunk^^’, ‘drunk^’, and ‘drunk’.&lt;/p&gt;
+
+&lt;p&gt;You’d really like those three lousy snapshots to be two clean snapshots. One
+that changes an existing function, and one that adds a new file. To accomplish
+this revision of history you copy ‘drunk’ to ‘working’ and delete the file that
+is new in the series. Now ‘working’ represents the correct modifications to the
+existing function. You create a new snapshot from ‘working’ and write the
+message to be appropriate to the changes. For the parent you specify the SHA1 of
+the ‘drunk^^^’ snapshot, essentially creating a new branch off of the same
+snapshot as last night. Now you can copy ‘drunk’ to ‘working’ and roll a
+snapshot with the new file addition. As the parent you specify that snapshot you
+created just before this one.&lt;/p&gt;
+
+&lt;p&gt;As the last step, you change the branch name ‘drunk’ to point to the last
+snapshot you just made.&lt;/p&gt;
+
+&lt;p&gt;The history of the ‘drunk’ branch now represents a nicer version of what you did
+last night. The other snapshots that you’ve replaced are no longer needed so you
+can delete them or just leave them around for posterity. No branch names are
+currently pointing at them so it will be hard to find them later on, but if you
+don’t delete them, they’ll stick around.&lt;/p&gt;
+
+&lt;h2 id=&quot;staging-area&quot;&gt;Staging Area&lt;/h2&gt;
+
+&lt;p&gt;As much as you try to keep your new modifications related to a single feature or
+logical chunk, you sometimes get sidetracked and start hacking on something
+totally unrelated. Only half-way into this do you realize that your working
+directory now contains what should really be separated as two discrete
+snapshots.&lt;/p&gt;
+
+&lt;p&gt;To help you with this annoying situation, the concept of a staging directory is
+useful. This area acts as an intermediate step between your working directory
+and a final snapshot. Each time you finish a snapshot, you also copy that to a
+&lt;code&gt;staging&lt;/code&gt; directory. Now, every time you finish an edit to a new
+file, create a new file, or remove a file, you can decide whether that change
+should be part of your next snapshot. If it belongs, you mimic the change inside
+&lt;code&gt;staging&lt;/code&gt;. If it doesn’t, you can leave it in &lt;code&gt;working&lt;/code&gt;
+and make it part of a later snapshot. From now on, snapshots are created
+directly from the staging directory.&lt;/p&gt;
+
+&lt;p&gt;This separation of coding and preparing the stage makes it easy to specify what
+is and is not included in the next snapshot. You no longer have to worry too
+much about making an accidental, unrelated change in your working directory.&lt;/p&gt;
+
+&lt;p&gt;You have to be a bit careful, though. Consider a file named &lt;code&gt;README&lt;/code&gt;.
+You make an edit to this file and then mimic that in &lt;code&gt;staging&lt;/code&gt;. You
+go on about your business, editing other files. After a bit, you make another
+change to &lt;code&gt;README&lt;/code&gt;. Now you have made two changes to that file, but
+only one is in the staging area! Were you to create a snapshot now, your second
+change would be absent.&lt;/p&gt;
+
+&lt;p&gt;The lesson is this: every new edit must be added to the staging area if it is to
+be part of the next snapshot.&lt;/p&gt;
+
+&lt;h2 id=&quot;diffs&quot;&gt;Diffs&lt;/h2&gt;
+
+&lt;p&gt;With a working directory, a staging area, and loads of snapshots laying around,
+it starts to get confusing as to what the specific code changes are between
+these directories. A snapshot message only gives you a summary of what changed,
+not exactly what lines were changed between two files.&lt;/p&gt;
+
+&lt;p&gt;Using a diffing algorithm, you can implement a small program that shows you the
+differences in two codebases. As you develop and copy things from your working
+directory to the staging area, you’ll want to easily see what is different
+between the two, so that you can determine what else needs to be staged. It’s
+also important to see how the staging area is different from the last snapshot,
+since these changes are what will become part of the next snapshot you produce.&lt;/p&gt;
+
+&lt;p&gt;There are many other diffs you might want to see. The differences between a
+specific snapshot and its parent would show you the “changeset” that was
+introduced by that snapshot. The diff between two branches would be helpful for
+making sure your development doesn’t wander too far away from the mainline.&lt;/p&gt;
+
+&lt;h2 id=&quot;eliminating-duplication&quot;&gt;Eliminating Duplication&lt;/h2&gt;
+
+&lt;p&gt;After a few more trips to Namibia, Istanbul, and Galapagos, Zoe starts to
+complain that her hard drive is filling up with hundreds of nearly identical
+copies of the software. You too have been feeling like all the file duplication
+is wasteful. After a bit of thinking, you come up with something very clever.&lt;/p&gt;
+
+&lt;p&gt;You remember that the SHA1 hash produces a short string that is unique for a
+given file contents. Starting with the very first snapshot in the project
+history, you start a conversion process. First, you create a directory named
+&lt;code&gt;objects&lt;/code&gt; outside of the code history. Next, you find the most deeply
+nested directory in the snapshot. Additionally, you open up a temporary file for
+writing. For each file in this directory you perform three steps. Step 1:
+Calculate the SHA1 of the contents. Step 2: Add an entry into the temp file that
+contains the word ‘blob’ (binary large object), the SHA1 from the first step,
+and the filename. Step 3: Copy the file to the objects directory and rename it
+to the SHA1 from step 1. Once finished with all the files, find the SHA1 of the
+temp file contents and use that to name the temp file, also placing it in the
+objects directory.&lt;/p&gt;
+
+&lt;p&gt;If at any time the objects directory already contains a file with a given name,
+then you have already stored that file’s contents and there is no need to do so
+again.&lt;/p&gt;
+
+&lt;p&gt;Now, move up one directory and start over. Only this time, when you get to the
+entry for the directory that you just processed, enter the word ‘tree’, the SHA1
+of the temp file from last time, and the directory’s name into the new temp
+file. In this fashion you can build up a tree of directory object files that
+contain the SHA1s and names of the files and directory objects that they
+contain.&lt;/p&gt;
+
+&lt;p&gt;Once this has been accomplished for every directory and file in the snapshot,
+you have a single root directory object file and its corresponding SHA1. Since
+nothing contains the root directory, you must record the root tree’s SHA1
+somewhere. An ideal place to store it is in the snapshot message file. This way,
+the uniqueness of the SHA1 of the message also depends on the entire contents of
+the snapshot, and you can guarantee with absolute certainty that two identical
+snapshot message SHA1s contain the same files!&lt;/p&gt;
+
+&lt;p&gt;It’s also convenient to create an object from the snapshot message in the same
+way that you do for blobs and trees. Since you’re maintaining a list of branch
+and tag names that point to message SHA1s you don’t have to worry about losing
+track of which snapshots are important to you.&lt;/p&gt;
+
+&lt;p&gt;With all of this information stored in the objects directory, you can safely
+delete the snapshot directory that you used as the source of this operation. If
+you want to reconstitute the snapshot at a later date it’s simply a matter of
+following the SHA1 of the root tree stored in the message file and extracting
+each tree and blob into their corresponding directory and file.&lt;/p&gt;
+
+&lt;p&gt;For a single snapshot, this transformation process doesn’t get you much. You’ve
+basically just converted one filesystem into another and created a lot of work
+in the process. The real benefits of this system arise from reuse of trees and
+blobs across snapshots. Imagine two sequential snapshots in which only a single
+file in the root directory has changed. If the snapshots both contain 10
+directories and 100 files, the transformation process will create 10 trees and
+100 blobs from the first snapshot but only one new blob and one new tree from
+the second snapshot!&lt;/p&gt;
+
+&lt;p&gt;By converting every snapshot directory in the old system to object files in the
+new system, you can drastically reduce the number of files that are stored on
+disk. Now, instead of storing perhaps 50 identical copies of a rarely changed
+file, you only need to keep one.&lt;/p&gt;
+
+&lt;h2 id=&quot;compressing-blobs&quot;&gt;Compressing Blobs&lt;/h2&gt;
+
+&lt;p&gt;Eliminating blob and tree duplication significantly reduces the total storage
+size of your project history, but that’s not the only thing you can do to save
+space. Source code is just text. Text can be very efficiently compressed using
+something like the LZW or DEFLATE compression algorithms. If you compress every
+blob before computing its SHA1 and saving it to disk you can reduce the total
+storage size of the project history by another very admirable quantity.&lt;/p&gt;
+
+&lt;h2 id=&quot;the-true-git&quot;&gt;The True Git&lt;/h2&gt;
+
+&lt;p&gt;The VCS you have constructed is now a reasonable facsimile of Git. The main
+difference is that Git gives you very nice command lines tools to handle such
+things as creating new snapshots and switching to old ones (Git uses the term
+“commit” instead of “snapshot”), tracing history, keeping branch tips
+up-to-date, fetching changes from other people, merging and diffing branches,
+and hundreds of other common (and not-so-common tasks).&lt;/p&gt;
+
+&lt;p&gt;As you continue to learn Git, keep this parable in mind. Git is really very
+simple underneath, and it is this simplicity that makes it so flexible and
+powerful. One last thing before you run off to learn all the Git commands:
+remember that it is almost impossible to lose work that has been committed. Even
+when you delete a branch, all that’s really happened is that the pointer to that
+commit has been removed. All of the snapshots are still in the objects
+directory, you just need to dig up the commit SHA. In these cases, look up
+&lt;code&gt;git reflog&lt;/code&gt;. It contains a history of what each branch pointed to
+and in times of crisis, it will save the day.&lt;/p&gt;
+
+&lt;p&gt;Here are some resources that you should follow as your next step. Now, go, and
+become a Git master!&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;http://learn.github.com/&quot;&gt;Learn Git&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://book.git-scm.com/&quot;&gt;Git Community Book&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www-cs-students.stanford.edu/~blynn/gitmagic/&quot;&gt;Git Magic&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;–&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://news.ycombinator.com/item?id=615308&quot;&gt;Discuss this post on Hacker News&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a rel=&quot;license&quot; href=&quot;http://creativecommons.org/licenses/by-nc-sa/3.0/us/&quot;&gt;&lt;img alt=&quot;Creative Commons License&quot; style=&quot;border-width:0&quot; src=&quot;http://i.creativecommons.org/l/by-nc-sa/3.0/us/80x15.png&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Blogging Like a Hacker</title>
+   <link href="http://tom.preston-werner.com/2008/11/17/blogging-like-a-hacker.html"/>
+   <updated>2008-11-17T00:00:00-05:00</updated>
+   <id>http://tom.preston-werner.com/2008/11/17/blogging-like-a-hacker</id>
+   <content type="html">&lt;h1 id=&quot;blogging-like-a-hacker&quot;&gt;Blogging Like a Hacker&lt;/h1&gt;
+
+&lt;p class=&quot;meta&quot;&gt;17 Nov 2008 - San Francisco&lt;/p&gt;
+
+&lt;p&gt;Back in 2000, when I thought I was going to be a professional writer, I spent
+hours a day on LiveJournal doing writing practice with other aspiring poets and
+authors. Since then I’ve blogged at three different domains about web standards,
+print design, photography, Flash, illustration, information architecture,
+ColdFusion, package management, PHP, CSS, advertising, Ruby, Rails, and Erlang.&lt;/p&gt;
+
+&lt;p&gt;I love writing. I get a kick out of sharing my thoughts with others. The act of
+transforming ideas into words is an amazingly efficient way to solidify and
+refine your thoughts about a given topic. But as much as I enjoy blogging, I
+seem to be stuck in a cycle of quitting and starting over. Before starting the
+current iteration, I resolved to do some introspection to determine the factors
+that were leading to this destructive pattern.&lt;/p&gt;
+
+&lt;p&gt;I already knew a lot about what I &lt;em&gt;didn’t&lt;/em&gt; want. I was tired of complicated
+blogging engines like WordPress and Mephisto. I wanted to write great posts, not
+style a zillion template pages, moderate comments all day long, and constantly
+lag behind the latest software release. Something like Posterous looked
+attractive, but I wanted to style my blog, and it needed to be hosted at the
+domain of my choosing. For the same reason, other hosted sites (wordpress.com,
+blogger.com) were disqualified. There are a few people directly using GitHub as
+a blog (which is very cool), but that’s a bit too much of an impedance mismatch
+for my tastes.&lt;/p&gt;
+
+&lt;p&gt;On Sunday, October 19th, I sat down in my San Francisco apartment with a glass
+of apple cider and a clear mind. After a period of reflection, I had an idea.
+While I’m not specifically trained as an author of prose, I &lt;em&gt;am&lt;/em&gt; trained as an
+author of code. What would happen if I approached blogging from a software
+development perspective? What would that look like?&lt;/p&gt;
+
+&lt;p&gt;First, all my writing would be stored in a Git repository. This would ensure
+that I could try out different ideas and explore a variety of posts all from the
+comfort of my preferred editor and the command line. I’d be able to publish a
+post via a simple deploy script or post-commit hook. Complexity would be kept to
+an absolute minimum, so a static site would be preferable to a dynamic site that
+required ongoing maintenance. My blog would need to be easily customizable;
+coming from a graphic design background means I’ll always be tweaking the site’s
+appearance and layout.&lt;/p&gt;
+
+&lt;p&gt;Over the last month I’ve brought these concepts to fruition and I’m pleased to
+announce &lt;a href=&quot;http://github.com/mojombo/jekyll&quot;&gt;Jekyll&lt;/a&gt;. Jekyll is a simple, blog
+aware, static site generator. It takes a template directory (representing the
+raw form of a website), runs it through Textile and Liquid converters, and spits
+out a complete, static website suitable for serving with Apache or your favorite
+web server. If you’re reading this on the website
+(http://tom.preston-werner.com), you’re seeing a Jekyll generated blog!&lt;/p&gt;
+
+&lt;p&gt;To understand how this all works, open up my &lt;a href=&quot;http://github.com/mojombo/tpw&quot;&gt;TPW&lt;/a&gt;
+repo in a new browser window. I’ll be referencing the code there.&lt;/p&gt;
+
+&lt;p&gt;Take a look at
+&lt;a href=&quot;http://github.com/mojombo/tpw/tree/master/index.html&quot;&gt;index.html&lt;/a&gt;. This file
+represents the homepage of the site. At the top of the file is a chunk of YAML
+that contains metadata about the file. This data tells Jekyll what layout to
+give the file, what the page’s title should be, etc. In this case, I specify
+that the “default” template should be used. You can find the layout files in the
+&lt;a href=&quot;http://github.com/mojombo/tpw/tree/master/_layouts&quot;&gt;_layouts&lt;/a&gt; directory. If you
+open
+&lt;a href=&quot;http://github.com/mojombo/tpw/tree/master/_layouts/default.html&quot;&gt;default.html&lt;/a&gt;
+you can see that the homepage is constructed by wrapping index.html with this
+layout.&lt;/p&gt;
+
+&lt;p&gt;You’ll also notice Liquid templating code in these files.
+&lt;a href=&quot;http://www.liquidmarkup.org/&quot;&gt;Liquid&lt;/a&gt; is a simple, extensible templating
+language that makes it easy to embed data in your templates. For my homepage I
+wanted to have a list of all my blog posts. Jekyll hands me a Hash containing
+various data about my site. A reverse chronological list of all my blog posts
+can be found in &lt;code&gt;site.posts&lt;/code&gt;. Each post, in turn, contains various
+fields such as &lt;code&gt;title&lt;/code&gt; and &lt;code&gt;date&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Jekyll gets the list of blog posts by parsing the files in the
+&lt;a href=&quot;http://github.com/mojombo/tpw/tree/master/_posts&quot;&gt;_posts&lt;/a&gt; directory. Each post’s
+filename contains the publishing date and slug (what shows up in the URL) that
+the final HTML file should have. Open up the file corresponding to this blog
+post:
+&lt;a href=&quot;http://github.com/mojombo/tpw/tree/master/_posts/2008-11-17-blogging-like-a-hacker.textile&quot;&gt;2008-11-17-blogging-like-a-hacker.textile&lt;/a&gt;.
+GitHub renders textile files by default, so to better understand the file, click
+on the
+&lt;a href=&quot;http://github.com/mojombo/tpw/tree/master/_posts/2008-11-17-blogging-like-a-hacker.textile?raw=true&quot;&gt;raw&lt;/a&gt;
+view to see the original file. Here I’ve specified the &lt;code&gt;post&lt;/code&gt; layout.
+If you look at that file you’ll see an example of a nested layout. Layouts can
+contain other layouts allowing you a great deal of flexibility in how pages are
+assembled. In my case I use a nested layout in order to show related posts for
+each blog entry. The YAML also specifies the post’s title which is then embedded
+in the post’s body via Liquid.&lt;/p&gt;
+
+&lt;p&gt;Posts are handled in a special way by Jekyll. The date you specify in the
+filename is used to construct the URL in the generated site. This post, for
+instance, ends up at
+&lt;code&gt;http://tom.preston-werner.com/2008/11/17/blogging-like-a-hacker.html&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Files that do not reside in directories prefixed with an underscore are mirrored
+into a corresponding directory structure in the generated site. If a file does
+not have a YAML preface, it is not run through the Liquid interpreter. Binary
+files are copied over unmodified.&lt;/p&gt;
+
+&lt;p&gt;In order to convert your raw site into the finished version, you simply run:&lt;/p&gt;
+
+&lt;pre class=&quot;terminal&quot;&gt;&lt;code&gt;$ jekyll /path/to/raw/site
+/path/to/place/generated/site&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Jekyll is still a very young project. I’ve only developed the exact
+functionality that I’ve needed. As time goes on I’d like to see the project
+mature and support additional features. If you end up using Jekyll for your own
+blog, drop me a line and let me know what you’d like to see in future versions.
+Better yet, fork the project over at GitHub and hack in the features yourself!&lt;/p&gt;
+
+&lt;p&gt;I’ve been living with Jekyll for just over a month now. I love it. Driving the
+development of Jekyll based on the needs of my blog has been very rewarding. I
+can edit my posts in TextMate, giving me automatic and competent spell checking.
+I have immediate and first class access to the CSS and page templates.
+Everything is backed up on GitHub. I feel a lightness now when I’m writing a
+post. The system is simple enough that I can keep the entire conversion process
+in my head. The distance from my brain to my blog has shrunk, and, in the end, I
+think that will make me a better author.&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>How to Meet Your Next Cofounder</title>
+   <link href="http://tom.preston-werner.com/2008/11/03/how-to-meet-your-next-cofounder.html"/>
+   <updated>2008-11-03T00:00:00-05:00</updated>
+   <id>http://tom.preston-werner.com/2008/11/03/how-to-meet-your-next-cofounder</id>
+   <content type="html">&lt;h1 id=&quot;how-to-meet-your-next-cofounder&quot;&gt;How to Meet Your Next Cofounder&lt;/h1&gt;
+
+&lt;p class=&quot;meta&quot;&gt;3 Nov 2008 - San Francisco&lt;/p&gt;
+
+&lt;p&gt;Over the last few months I’ve seen a number of people looking for cofounders on
+Hacker News or via their own personal blogs. I think this is, at best, a highly
+inefficient way to find a cofounder and, at worst, a way to fool yourself into
+finding the &lt;em&gt;wrong&lt;/em&gt; cofounder. In any case, it’s a naive approach to finding the
+person that will need to stand by your side in the coming storm that we call
+“running a startup.”&lt;/p&gt;
+
+&lt;p&gt;Don’t get me wrong, the internet is an amazing tool for meeting people. The
+wider the net you cast, the more likely you are to find the perfect match. But
+the internet has its limitations. I’ve had internet friends that were engaging,
+witty, and brilliant online, but in person felt awkward and boring. Conversely,
+I know people that are volatile and inflammatory online, but present an attitude
+of friendliness and caring in person. This phenomenon makes it difficult to
+gauge an individual’s personality from online interaction alone.&lt;/p&gt;
+
+&lt;p&gt;A far better use of the internet is to find groups of people that share your
+interests. Track down the local users group for your language or technology of
+choice. The simple fact that members of these groups take time out of their day
+to show up means that they’re more motivated and driven than the average person.
+Even if it’s a bit of a commute to get to the meetings, start showing up
+regularly. Prepare a few presentations on topics that you’re passionate about.
+Bonus points if you present on ideas related to your potential startup. Don’t
+worry about revealing your game-changing secrets; stealth mode is bullshit. Talk
+to everyone. Steer the conversation toward your interests and if someone there
+is excited about the same things, it will be clear.&lt;/p&gt;
+
+&lt;p&gt;It may take weeks or months, but in a good group you’ll find a handful of people
+that you really like. If at all possible, go out drinking with these people
+after the meetups. This is one of the easiest ways to go from “acquaintance” to
+“friend” and gives you free license to bring up your craziest of ideas without
+sounding like too much of a nutjob.&lt;/p&gt;
+
+&lt;p&gt;Of the people that you like, several may make excellent candidates for
+cofounders. Do a little research on these individuals. What does their code look
+like? Have they done much open source? Do they demonstrate an entrepreneurial
+spirit? Can they stick with a single project for a long time? Have they been
+loyal to their friends and companies in the past? A good cofounder should be
+someone with whom you feel privileged to work. And they should feel privileged
+to work with you. The two of you should be on very solid ground before you begin
+your startup adventure, because once you do, the impact of every argument is
+going to feel like it’s been multiplied by a thousand.&lt;/p&gt;
+
+&lt;p&gt;This all sounds like a lot of hard work. Maybe you’re wondering if it would be
+better to just go solo. I did that with Gravatar, and, in retrospect, it’s
+painfully obvious that I made a lot of stupid mistakes. When it’s just you and
+your thoughts it becomes too easy to pick the first thing that pops into your
+head. We’re programmed to think all of our ideas are good, but reality tells a
+different story. Truly good decisions are forged from the furnace of argument,
+not plucked like daisies from the pasture of a peaceful mind. A good cofounder
+tells you when your ideas are half-baked and ensures that your good ideas
+actually get implemented.&lt;/p&gt;
+
+&lt;p&gt;The second biggest danger with going solo is the loss of motivation. Solipsism
+might make you feel important at first, but the constant lack of feedback and
+the absence of support during tough times can easily lead to a premature end to
+your adventure. Cofounders are like workout buddies. Just when you think there’s
+no possible way you can do another rep, there they are, rooting you on toward an
+achievement that wouldn’t be possible without them.&lt;/p&gt;
+
+&lt;p&gt;Your choice of cofounder will affect everything you do in your startup. They’ll
+share every defeat with you and celebrate every success. They’ll help you
+understand your own ideas better by offering a different perspective. They’ll be
+the single most important decision you make during the tenure of your startup,
+so choose wisely and with extreme care.&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Looking back on Selling Gravatar to Automattic</title>
+   <link href="http://tom.preston-werner.com/2008/10/27/looking-back-on-selling-gravatar-to-automattic.html"/>
+   <updated>2008-10-27T00:00:00-04:00</updated>
+   <id>http://tom.preston-werner.com/2008/10/27/looking-back-on-selling-gravatar-to-automattic</id>
+   <content type="html">&lt;h1 id=&quot;looking-back-on-selling-gravatar-to-automattic&quot;&gt;Looking back on Selling Gravatar to Automattic&lt;/h1&gt;
+
+&lt;p class=&quot;meta&quot;&gt;23 Oct 2008 - San Francisco&lt;/p&gt;
+
+&lt;p&gt;For an entrepreneur, the line between horrible mistake and runaway success can
+be so thin that even Kate Moss would be envious. I lived with
+&lt;a href=&quot;http://gravatar.com/&quot;&gt;Gravatar&lt;/a&gt; for nearly four years before that line even
+became thick enough to measure.&lt;/p&gt;
+
+&lt;p&gt;As it’s become one of my favorite parables, I’ll save the details of how I came
+up with the idea for Gravatar for a future post. What’s important to know is
+that the idea was spawned not from a business perspective, but from a desperate
+desire to create something new in the world of blogging.&lt;/p&gt;
+
+&lt;p&gt;Spin the clock back four years and you’ll find me sitting at my Windows desktop
+machine in my underwear with a box of Life cereal to my left and a day old Coke
+to my right. Since I’d been laid off from my job as a Java developer some months
+earlier, I’d decided to take the entrepreneurial plunge doing what I knew best:
+web design. Working in a cone of isolation, I’d become accustomed to waking up
+late, swinging my legs over the right side of the bed, and in one fluid movement
+sliding over to the ratty chair I stole from my old college dorm room. I’d spend
+most of the day working on client projects in ColdFusion or PHP. It was hard
+work and could become a bit tiresome. I needed an outlet, something that didn’t
+have a suit on the other end of a telephone telling me how blue was the wrong
+color and things would be so much better if only the photo had a slightly bigger
+border. Gravatar would become that outlet for me.&lt;/p&gt;
+
+&lt;p&gt;I was really big into web standards at the time, having recently read Zeldman’s
+seminal work, and became a true believer. Eric Meyers, Dan Cederholm, and Jon
+Hicks became like gods to me. I worked very hard at making relevant and witty
+comments around the right kinds of blogs. Being a part of that movement became a
+significant goal for me. My Movable Type weblog rarely went more than two days
+days without a post on design or standards.&lt;/p&gt;
+
+&lt;p&gt;Two weeks after I had the idea for Gravatar the first version was written and
+deployed. Every request hit the database and dynamically generated a properly
+sized gravatar via PHP’s gd2 api. Premature optimization and all that, right?
+The first thing I did after getting the system to a workable state was email all
+the bloggers I looked up to (and that had no idea who I was). Blog comments at
+the time were a pretty dreary affair and I guess Cederholm was intrigued enough
+by my idea that he linked to it in a sidebar micro-post on simplebits.com.&lt;/p&gt;
+
+&lt;p&gt;That single mention kicked off a slow but steady trickle of interest in the
+system. A few blogs here and there installed the plugin and the world started
+seeing avatars that mysteriously followed them around. At the same time, just as
+people must have thought Cheez Whiz was a stupid idea when it first came out,
+some bloggers started railing against Gravatar, calling it frivolous,
+inefficient, and “an abomination.” This was my first nibble at the smorgasbord
+of what was to become the “horrible mistake” aspect of Gravatar.&lt;/p&gt;
+
+&lt;p&gt;Due to the inherently self-advertising nature of gravatars (the “what the hell
+is that and how do I get one?” brand of advertising), Gravatar adoption
+increased at a rapid rate. Having crafted the idea for Gravatar without any
+semblance of business model or growth projection or build-out strategy, things
+took a rather dramatic dive away from “runaway success” as my server (yes,
+singular) buckled under the pressure of tens of requests per second! As it turns
+out, regenerating a gravatar on every request is not very CPU efficient.
+Gravatars worldwide suddenly turned into little red Xs. Then, in what has become
+known as the Twitter Effect, a barrage of emails hit me complaining about how
+the free service on which they had come to depend was down, and how this would
+adversely impact my well-being.&lt;/p&gt;
+
+&lt;p&gt;I fixed the code. Gravatar came back online with caching. All the while I’d had
+the bright idea that gravatars would be rated for content, MPAA-style. Because
+users clearly were not fit to rate their own images, I was manually rating 400
+or more avatars each day. If I missed a day, I’d have damn near a thousand
+waiting for me the next day. In addition to the angry mob, I was very fortunate
+to have an amazingly supportive group of users that volunteered to help me rate
+images. I owe them my sanity, and it freed up enough time for me to work on the
+next iteration of the site.&lt;/p&gt;
+
+&lt;p&gt;G2, as I called it, would be written in Rails and use lighttpd plus a convoluted
+directory structure of symlinks to enable me to pre-render every gravatar (1x1
+up to 80x80) and serve only static images. I did this to avoid having to rent or
+buy the kind of hardware necessary to hook up a properly scaled system. Up until
+the end I ran Gravatar on a maximum of two rented commodity servers that set me
+back a mere $300/month, a pittance for the kind of traffic I was serving. I say
+it was a pittance, but that’s not really true. Donations didn’t even come close
+to covering that cost.&lt;/p&gt;
+
+&lt;p&gt;At some point early in the development of G2, Toni Schneider, the CEO of
+Automattic (the company behind WordPress.com and Akismet) contacted me after
+hearing my &lt;a href=&quot;http://blog.gravatar.com/2007/10/18/automattic-gravatar/&quot;&gt;interview about the future of
+Gravatar&lt;/a&gt; on the
+WordPress podcast. This was exciting news! How perfect a fit would it be for
+Gravatar to be bought by Automattic? I was already planning a trip up to San
+Francisco to meet with the Powerset guys, so the timing worked out perfectly for
+me to meet in person with Toni. I ended up having lunch with Toni and Matt
+Mullenweg at 21st Ammendment on 2nd Street. It was a bit intimidating to come to
+the mecca of tech startups to meet with such huge players in the blogging
+community. Turned out that both Matt and Toni are great guys and so we had
+drinks for about two hours, talking about my ideas for Gravatar and how we might
+be able to work together. Everything seemed great—I was jazzed and they
+seemed excited—but a few weeks later Toni let me know that the timing was
+wrong and they couldn’t make a play at that time. He suggested I proceed with G2
+and they’d proceed with their own avatar system. I was pretty bummed about the
+outcome, but I took their advice and kept going.&lt;/p&gt;
+
+&lt;p&gt;A few weeks before G2 was finished, the site imploded in a big way. One machine.
+Hundreds of requests per second. That poor CPU must have thought it was the End
+Times. Instead of wasting time on getting the existing system back up, I put on
+my headphones, turned it up to eleven, and got back to work on G2.&lt;/p&gt;
+
+&lt;p&gt;I’m not sure if you’ve ever had to work on a project while your users are
+publicly skewering you on your blog for allowing the service to go down, but
+it’s as close to depression as I’ve ever come. If I’d had less pride, I would
+have popped everyone a huge middle finger and let the service die, but instead I
+waded through the hundreds of comments and deleted the ones with threats,
+hatred, or my favorite, the words “fuck you” repeated 600 times. It wasn’t fair,
+I told myself, that I should be sitting here with high blood pressure trying to
+raise Gravatar from the dead while the unappreciative masses do what they do
+best on the internet. The only thing that kept me going was never being able to
+tell which side of the mistake/success boundary I was sitting on. It was hard to
+think of the situation as anything but a huge failure, but the shitstorm the
+downtime was causing indicated that people found the service valuable. I want to
+say that Twitter went through the same thing, but they suffered their downtime
+with millions of dollars in the bank. The only thing I had was a full time job
+unrelated to Gravatar and a credit card that reminded me every month of my bad
+judgment.&lt;/p&gt;
+
+&lt;p&gt;Finally G2 was done, deployed, and fully operational. I have no idea how many
+users I lost due to the several weeks of downtime, but I don’t think it was very
+many. There seems to be a corollary to the Twitter Effect that I’d call the
+Forgiveness Effect. It dictates that if a user enjoys a free service and that
+service is currently up, all past atrocities will be easily and quickly
+forgiven. With the site running again, things looked to be shifting back towards
+a success.&lt;/p&gt;
+
+&lt;p&gt;Things were not all rainbows and unicorns though. My Rube Goldbergian
+architecture had a few quirks that needed to be dealt with. The site still had
+some elusive bugs from the overly-rapid development cycle. And just like new
+lanes on freeways always fill up immediately, the two new servers I was running
+started causing expensive bandwidth overages. I had taken a job at Powerset at
+this point and the combined pressures of these two commitments started to weigh
+me down. Once again I started feeling like all the effort I put into Gravatar
+was for nothing. Like I would never benefit from any of it.&lt;/p&gt;
+
+&lt;p&gt;In a last ditch effort to save Gravatar from final doom, I emailed Toni and
+pitched him again on Gravatar. I figured it was a long shot, but what the hell,
+couldn’t hurt. Things must have changed in the prior 6 months because Toni was
+very receptive to the idea. We met again, at 21st Ammendment, and hashed out a
+tentative deal over drinks. I’d never sold anything like this before, so my
+technique was probably very amateurish. I’m almost certain I could have gotten a
+better deal out of it, but I had the smell of desperation about me and I really
+did want to see Gravatar end up in Automattic’s hands.&lt;/p&gt;
+
+&lt;p&gt;Four days later, Automattic made their official offer. On September 21st, 2007
+we inked the deal and Gravatar became both the first company that I ever sold
+and the first company that Automattic ever acquired.&lt;/p&gt;
+
+&lt;p&gt;I am quite satisfied with the sale to Automattic. Some will say that I should
+have pursued VC funding. Indeed, I was contacted by several firms but never
+travelled very far down that road. I always felt like Gravatar was a feature,
+and I wasn’t comfortable building a company on such a tiny foundation.
+Reinforcing this decision, no viable business model ever coalesced during the
+time I was building the site. It was also made clear by Toni that Automattic
+would maintain Gravatar as a separate brand and continue its evolution (instead
+of just absorbing it into WordPress). This appealed to my ego. Most companies
+kill or maim everything they acquire, but here was a chance for Gravatar to
+carry forward with all of Automattic’s resources behind it (instead of two
+measly servers). Part of me just wanted to see what Gravatar could become with
+time, money, and man-power moving it forward.&lt;/p&gt;
+
+&lt;p&gt;Things always seem so clear in retrospect. But it was pride and persistence that
+kept me in the game long enough to have anything to look back on at all. While
+the line between horrible mistake and runaway success may be difficult to see,
+you can still find it if you look hard enough.&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>How I Turned Down $300,000 from Microsoft to go Full-Time on GitHub</title>
+   <link href="http://tom.preston-werner.com/2008/10/18/how-i-turned-down-300k.html"/>
+   <updated>2008-10-18T00:00:00-04:00</updated>
+   <id>http://tom.preston-werner.com/2008/10/18/how-i-turned-down-300k</id>
+   <content type="html">&lt;h1 id=&quot;how-i-turned-down-300000-from-microsoft-to-go-full-time-on-github&quot;&gt;How I Turned Down $300,000 from Microsoft to go Full-Time on GitHub&lt;/h1&gt;
+
+&lt;p class=&quot;meta&quot;&gt;18 Oct 2008 - San Francisco&lt;/p&gt;
+
+&lt;p&gt;2008 is a leap year. That means that three hundred and sixty six days ago,
+almost to the minute, I was sitting alone in a booth at Zeke’s Sports Bar and
+Grill on 3rd Street in San Francisco. I wouldn’t normally hang out at a sports
+bar, let alone a sports bar in SOMA, but back then Thursday was “I Can Has Ruby”
+night. I guess back then “I can has &lt;strong&gt;__&lt;/strong&gt;_” was also a reasonable moniker to
+attach to pretty much anything. ICHR was a semi-private meeting of like minded
+Ruby Hackers that generally and willingly devolved into late night drinking
+sessions. Normally these nights would fade away like my hangover the next
+morning, but this night was different. This was the night that
+&lt;a href=&quot;http://github.com/&quot;&gt;GitHub&lt;/a&gt; was born.&lt;/p&gt;
+
+&lt;p&gt;I think I was sitting at the booth alone because I’d just ordered a fresh Fat
+Tire and needed a short break from the socializing that was happening over at
+the long tables in the dimly lit aft portion of the bar. On the fifth or sixth
+sip, Chris Wanstrath walked in. I have trouble remembering now if I’d even
+classify Chris and I as “friends” at the time. We knew each other through Ruby
+meetups and conferences, but only casually. Like a mutual “hey, I think your
+code is awesome” kind of thing. I’m not sure what made me do it, but I gestured
+him over to the booth and said “dude, check this out.” About a week earlier I’d
+started work on a project called &lt;a href=&quot;http://github.com/mojombo/grit&quot;&gt;Grit&lt;/a&gt; that
+allowed me to access Git repositories in an object oriented manner via Ruby
+code. Chris was one of only a handful of Rubyists at the time that was starting
+to become serious about Git. He sat down and I started showing him what I had.
+It wasn’t much, but it was enough to see that it had sparked something in Chris.
+Sensing this, I launched into my half-baked idea for some sort of website that
+acted as hub for coders to share their Git repositories. I even had a name:
+GitHub. I may be paraphrasing, but his response was along the lines of a very
+emphatic “I’m in. Let’s do it!”&lt;/p&gt;
+
+&lt;p&gt;The next night, Friday, October 19, 2007 at 10:24pm Chris made the first commit
+to the GitHub repository and sealed in digital stone the beginning of our joint
+venture. There were, so far, no agreements of any kind regarding how things
+would proceed. Just two guys that decided to hack together on something that
+sounded cool.&lt;/p&gt;
+
+&lt;p&gt;Remember those amazing few minutes in Karate Kid where Daniel is training to
+become a martial arts expert? Remember the music? Well, you should probably go
+buy and listen to &lt;a href=&quot;http://phobos.apple.com/WebObjects/MZStore.woa/wa/viewAlbum?i=260417864&amp;amp;id=260417040&amp;amp;s=143441&quot;&gt;You’re The
+Best&lt;/a&gt;
+by Joe Esposito in iTunes because I’m about to hit you with a montage.&lt;/p&gt;
+
+&lt;p&gt;For the next three months Chris and I spent ridiculous hours planning and coding
+GitHub. I kept going with Grit and designed the UI. Chris built out the Rails
+app. We met in person every Saturday to make design decisions and try to figure
+out what the hell our pricing plan would look like. I remember one very rainy
+day we talked for a good two hours about various pricing strategies over some of
+the best Vietnamese egg rolls in the city. All of this we did while holding
+other engagements. I, for one, was employed full time at Powerset as a tools
+developer for the Ranking and Relevance team.&lt;/p&gt;
+
+&lt;p&gt;In mid January, after three months of nights and weekends, we launched into
+private beta mode, sending invites to our friends. In mid February PJ Hyett
+joined in and made us three-strong. We publicly launched the site on April 10th.
+TechCrunch was not invited. At this point it was still just three 20-somethings
+without a single penny of outside investment.&lt;/p&gt;
+
+&lt;p&gt;I was still working full time at Powerset on July 1, 2008 when we learned that
+Powerset had just been acquired by Microsoft for around $100 million. This was
+interesting timing. With the acquisition, I was going to be faced with a choice
+sooner than I had anticipated. I could either sign on as a Microsoft employee or
+quit and go GitHub full time. At 29 years old, I was the oldest of the three
+GitHubbers, and had accumulated a proportionally larger amount of debt and
+monthly expenditure. I was used to my six digit lifestyle. Further confounding
+the issue was the imminent return of my wife, Theresa, from her PhD fieldwork in
+Costa Rica. I would soon be transitioning from make-believe bachelor back to
+married man.&lt;/p&gt;
+
+&lt;p&gt;To muddy the waters of decision even more, the Microsoft employment offer was
+juicy. Salary + $300k over three years juicy. That’s enough money to make
+anybody think twice about anything. So I was faced with this: a safe job with
+lots of guaranteed money as a Microsoft man –or– a risky job with
+unknown amounts of money as an entrepreneur. I knew things with the other GitHub
+guys would become extremely strained if I stayed on at Powerset much longer.
+Having saved up some money and become freelancers some time ago, they had both
+started dedicating full time effort to GitHub. It was do or die time. Either
+pick GitHub and go for it, or make the safe choice and quit GitHub to make
+wheelbarrows full of cash at Microsoft.&lt;/p&gt;
+
+&lt;p&gt;If you want a recipe for restless sleep, I can give you one. Add one part “what
+will my wife think” with 3,000 parts Benjamin Franklin; stir in a “beer anytime
+you damn well please” and top with a chance at financial independence.&lt;/p&gt;
+
+&lt;p&gt;I’ve become pretty good at giving my employers the bad news that I’m leaving the
+company to go do something cooler. I broke the news to my boss at Powerset on
+the day the employment offer was due. I told him I was quitting to go work full
+time on GitHub. Like any great boss, he was bummed, but understanding. He didn’t
+try to tempt me with a bigger bonus or anything. I think deep down he knew I was
+going to leave. I may have even received a larger incentive to stay than others,
+on account of my being a flight risk. Those Microsoft managers are crafty, I
+tell you. They’ve got retention bonuses down to a science. Well, except when you
+throw an entrepreneur, the singularity of the business world, into the mix.
+Everything goes wacky when you’ve got one of those around.&lt;/p&gt;
+
+&lt;p&gt;In the end, just as Indiana Jones could never turn down the opportunity to
+search for the Holy Grail, I could no less turn down the chance to work for
+myself on something I truly love, no matter how safe the alternative might be.
+When I’m old and dying, I plan to look back on my life and say “wow, that was an
+adventure,” not “wow, I sure felt safe.”&lt;/p&gt;
+</content>
+ </entry>
+ 
+
+</feed>

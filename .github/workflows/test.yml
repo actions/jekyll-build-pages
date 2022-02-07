@@ -28,13 +28,12 @@ jobs:
         with:
           source: ./test_projects/${{ env.TEST_NAME }}
           destination: ./test_projects/${{ env.TEST_NAME }}/_site
+          build_revision: JEKYLL_BUILD_REVISION
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Save test results
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ env.TEST_NAME }}
-          path: ./test_projects/${{ env.TEST_NAME }}
+      - name: Verify output
+        run: |
+          ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
 
   test-readme:
     runs-on: ubuntu-latest
@@ -53,13 +52,12 @@ jobs:
         with:
           source: ./test_projects/${{ env.TEST_NAME }}
           destination: ./test_projects/${{ env.TEST_NAME }}/_site
+          build_revision: JEKYLL_BUILD_REVISION
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Save test results
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ env.TEST_NAME }}
-          path: ./test_projects/${{ env.TEST_NAME }}
+      - name: Verify output
+        run: |
+          ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
 
   test-octicons:
     runs-on: ubuntu-latest
@@ -78,13 +76,12 @@ jobs:
         with:
           source: ./test_projects/${{ env.TEST_NAME }}
           destination: ./test_projects/${{ env.TEST_NAME }}/_site
+          build_revision: JEKYLL_BUILD_REVISION
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Save test results
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ env.TEST_NAME }}
-          path: ./test_projects/${{ env.TEST_NAME }}
+      - name: Verify output
+        run: |
+          ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
 
   test-mojombo:
     runs-on: ubuntu-latest
@@ -103,13 +100,12 @@ jobs:
         with:
           source: ./test_projects/${{ env.TEST_NAME }}
           destination: ./test_projects/${{ env.TEST_NAME }}/_site
+          build_revision: JEKYLL_BUILD_REVISION
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Save test results
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ env.TEST_NAME }}
-          path: ./test_projects/${{ env.TEST_NAME }}
+      - name: Verify output
+        run: |
+          ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
 
   test-themes:
     runs-on: ubuntu-latest
@@ -128,13 +124,12 @@ jobs:
         with:
           source: ./test_projects/${{ env.TEST_NAME }}
           destination: ./test_projects/${{ env.TEST_NAME }}/_site
+          build_revision: JEKYLL_BUILD_REVISION
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Save test results
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ env.TEST_NAME }}
-          path: ./test_projects/${{ env.TEST_NAME }}
+      - name: Verify output
+        run: |
+          ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
 
   test-jekyll-include-cache:
     runs-on: ubuntu-latest
@@ -153,11 +148,57 @@ jobs:
         with:
           source: ./test_projects/${{ env.TEST_NAME }}
           destination: ./test_projects/${{ env.TEST_NAME }}/_site
+          build_revision: JEKYLL_BUILD_REVISION
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Save test results
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ env.TEST_NAME }}
-          path: ./test_projects/${{ env.TEST_NAME }}
+      - name: Verify output
+        run: |
+          ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
 
+  test-future-false:
+    runs-on: ubuntu-latest
+    env:
+      TEST_NAME: future-false
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Render Action Metadata
+        run: |
+          ./bin/render_action_metadata Dockerfile > action.yml
+
+      - name: Test ${{ env.TEST_NAME }} Project
+        uses: ./
+        with:
+          source: ./test_projects/${{ env.TEST_NAME }}
+          destination: ./test_projects/${{ env.TEST_NAME }}/_site
+          build_revision: JEKYLL_BUILD_REVISION
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify output
+        run: |
+          ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
+
+  test-future-true:
+    runs-on: ubuntu-latest
+    env:
+      TEST_NAME: future-true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Render Action Metadata
+        run: |
+          ./bin/render_action_metadata Dockerfile > action.yml
+
+      - name: Test ${{ env.TEST_NAME }} Project
+        uses: ./
+        with:
+          source: ./test_projects/${{ env.TEST_NAME }}
+          destination: ./test_projects/${{ env.TEST_NAME }}/_site
+          build_revision: JEKYLL_BUILD_REVISION
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify output
+        run: |
+          ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
