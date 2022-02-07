@@ -191,6 +191,7 @@ jobs:
           ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
 
   test-future-false:
+    needs: resolve-image-tag
     runs-on: ubuntu-latest
     env:
       TEST_NAME: future-false
@@ -216,6 +217,7 @@ jobs:
           ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
 
   test-future-true:
+    needs: resolve-image-tag
     runs-on: ubuntu-latest
     env:
       TEST_NAME: future-true
