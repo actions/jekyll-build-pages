@@ -1,0 +1,35 @@
+#! /usr/bin/env ruby
+
+require "pathname"
+require "shellwords"
+
+project_path = ARGV[0]
+
+Dir.chdir(project_path)
+
+expected_files = Dir["_expected/**/*"].select { |path| File.file?(path) }.map { |path| Pathname.new(path).relative_path_from("_expected").to_s }
+actual_files = Dir["_site/**/*"].select { |path| File.file?(path) }.map { |path| Pathname.new(path).relative_path_from("_site").to_s }
+
+differences = []
+
+expected_files.each do |expected_file|
+  if actual_files.include?(expected_file)
+    diff = `diff #{Shellwords.escape(File.join("_expected", expected_file))} #{Shellwords.escape(File.join("_site", expected_file))}`
+    if !$?.success?
+      differences << "Expected output of #{expected_file} differs:\n#{diff}"
+    end
+  else
+    differences << "Missing expected file: #{expected_file}"
+  end
+end
+
+unexpected_files = actual_files - expected_files
+unexpected_files.each do |unexpected_file|
+  differences << "Unexpected file: #{unexpected_file}"
+end
+
+if !differences.empty?
+  STDERR.puts "Differences between expected and actual outputs:"
+  differences.each { |diff| STDERR.puts(diff) }
+  exit(1)
+end

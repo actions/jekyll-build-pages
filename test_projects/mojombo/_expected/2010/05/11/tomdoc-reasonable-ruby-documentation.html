@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>TomDoc - Reasonable Ruby Documentation</title>
+   <meta name="author" content="Tom Preston-Werner" />
+   <link href="http://feeds.feedburner.com/tom-preston-werner" rel="alternate" title="Tom Preston-Werner" type="application/atom+xml" />
+   <meta name="readability-verification" content="QCzSs992GxmRYRKVpPeZ6LE2tS8aYKxsSSQKV8YM"/>
+
+   <!-- syntax highlighting CSS -->
+   <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="/css/screen.css" type="text/css" media="screen, projection" />
+
+   <!-- Typekit -->
+   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
+   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+</head>
+<body>
+
+<!-- ClickTale Top part -->
+<script type="text/javascript">
+var WRInitTime=(new Date()).getTime();
+</script>
+<!-- ClickTale end of Top part -->
+
+<div class="site">
+  <div class="title">
+    <a href="/">Tom Preston-Werner</a>
+    <a class="extra" href="/">home</a>
+  </div>
+
+  <div id="post">
+<h1 id="tomdoc---reasonable-ruby-documentation">TomDoc - Reasonable Ruby Documentation</h1>
+
+<p class="meta">11 May 2016 - San Francisco</p>
+
+<p><a href="http://rdoc.rubyforge.org">RDoc</a> is an abomination. It’s ugly to read in plain
+text, requires the use of the inane :nodoc: tag to prevent private method
+documentation from showing up in final rendering, and does nothing to encourage
+complete or unambiguous documentation of classes, methods, or parameters.
+<a href="http://yardoc.org">YARD</a> is much better but goes too far in the other direction
+(and still doesn’t look good in plain text). Providing an explicit way to
+specify parameters and types is great, but having to remember a bunch of strict
+tag names in order to be compliant is not a good way to encourage coders to
+write documentation. And again we see a <code class="language-plaintext highlighter-rouge">@private</code> tag that’s necessary to hide
+docs from the final render.</p>
+
+<p>Three years ago, after suffering with these existing documentation formats for
+far too long, I started using my own documentation format. It looked a bit like
+RDoc but had a set of conventions for specifying parameters, return values, and
+the expected types. It used plain language and full sentences so that a human
+could read and understand it without having to parse machine-oriented tags or
+crufty markup. I called this format TomDoc, because if Linus can name stuff
+after himself, then why can’t I?</p>
+
+<p>After years in the making, TomDoc is finally a well specified documentation
+format. You can find the full spec at <a href="http://tomdoc.org">http://tomdoc.org</a>.</p>
+
+<p>But enough talk. Here’s a sample of what a TomDoc’d method might look like:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Public: Duplicate some text an abitrary number of times.</span>
+<span class="c1">#</span>
+<span class="c1"># text  - The String to be duplicated.</span>
+<span class="c1"># count - The Integer number of times to duplicate the text.</span>
+<span class="c1">#</span>
+<span class="c1"># Examples</span>
+<span class="c1">#</span>
+<span class="c1">#   multiplex('Tom', 4)</span>
+<span class="c1">#   # =&gt; 'TomTomTomTom'</span>
+<span class="c1">#</span>
+<span class="c1"># Returns the duplicated String.</span>
+<span class="k">def</span> <span class="nf">multiplex</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+  <span class="n">text</span> <span class="o">*</span> <span class="n">count</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>At first glance you’ll notice a few things. First, and most important, is that
+the documentation looks nice in plain text. When I’m working on a project, I
+need to be able to scan and read method documentation quickly. Littering the
+docs with tags and markup (especially HTML markup) is not acceptable. Code
+documentation should be optimized for human consumption. Second, all parameters
+and return values, and their expected types are specified. Types are generally
+denoted by class name. Because Ruby is so flexible, you are not constrained by a
+rigid type declaration syntax and are free to explain precisely how the expected
+types may vary under different circumstances. Finally, the basic layout is
+designed to be easy to remember. Once you commit a few simple conventions to
+memory, writing documentation becomes second nature, with all of the tricky
+decision making already done for you.</p>
+
+<p>Today’s Ruby libraries suffer deeply from haphazard versioning schemes. Even
+RubyGems itself does not follow a sane or predictable versioning pattern. This
+lack of discipline stems from the absence of well defined Public APIs. TomDoc
+attempts to solve this problem by making it simple to define an unambiguous
+Public API for your library. Instead of assuming that all classes and methods
+are intended for public consumption, TomDoc makes the Public API opt-in. To
+denote that something is public, all you have to do is preface the main
+description with “Public:”. By forcing you to explicitly state that a class or
+method is intended for public consumption, a deliberate and thoughtful Public
+API is automatically constructed that can inform disciplined version changes
+according to the tenets of <a href="http://semver.org">Semantic Versioning</a>. In
+addition, the prominent display of “Public” in a method description ensures that
+developers are made aware of the sensitive nature of the method and do not
+carelessly change the signature of something in the Public API.</p>
+
+<p>Once a Public API has been established, some very exciting things become
+possible. We’re currently working on a processing tool that will render TomDoc
+into various forms (terminal, HTML, etc). If you run this tool on a library,
+you’ll get a printout of the Public API documentation. You can publish this
+online so that others have easy access to it. When you roll a new version of the
+library, you can run the tool again, giving it a prior version as a base, and
+have it automatically display only the methods that have changed. This diff will
+be extremely useful for users while they upgrade to the new version (or so they
+can evaluate whether an upgrade is warranted)!</p>
+
+<p>While I’ve been using various nascent forms of TomDoc for several years, we’re
+just now starting to adopt it for everything we do at GitHub. Now that I’ve
+formalized the spec it will be easy for the entire team to write compliant
+TomDoc. The goal is to have every class, method, and accessor of every GitHub
+library documented. In the future, once we have proper tooling, we’d even like
+to create a unit test that will fail if anything is missing documentation.</p>
+
+<p>TomDoc is still a rough specification so I’m initially releasing it as 0.9.0.
+Over the coming months I’ll make any necessary changes to address user concerns
+and release a 1.0.0 version once things have stabilized. If you’d like to
+suggest changes, please open an issue on the <a href="http://github.com/mojombo/tomdoc">TomDoc GitHub
+repository</a>.</p>
+
+</div>
+
+<div id="related">
+  <h2>Related Posts</h2>
+  <ul class="posts">
+    
+      <li><span>10 Nov 2016</span> &raquo; <a href="/2016/11/10/snyk.html">Snyk - Automatically Scan and Fix Ruby and Nodejs Vulnerabilities</a></li>
+    
+      <li><span>19 Jun 2015</span> &raquo; <a href="/2015/06/19/replicated.html">Replicated - An Easier Path from SaaS to Enterprise</a></li>
+    
+      <li><span>21 Apr 2014</span> &raquo; <a href="/2014/04/21/farewell-github-hello-immersive-computing.html">Farewell GitHub, Hello Immersive Computing</a></li>
+    
+  </ul>
+</div>
+
+  <div class="footer">
+    <div class="contact">
+      <p>
+        Tom Preston-Werner
+        <br />
+        Cofounder of
+          <a href="https://codestarter.org/">Codestarter</a>,
+          <a href="https://github.com/">GitHub</a>
+        <br />
+        tom@mojombo.com
+      </p>
+    </div>
+    <div class="contact">
+      <p>
+        <a href="http://github.com/mojombo/">github.com/mojombo</a><br />
+        <a href="http://twitter.com/mojombo/">twitter.com/mojombo</a><br />
+      </p>
+    </div>
+    <div class="rss">
+      <a href="http://feeds.feedburner.com/tom-preston-werner">
+        <img src="/images/rss.png" alt="Subscribe to RSS Feed" />
+      </a>
+    </div>
+  </div>
+</div>
+
+<a href="http://github.com/mojombo"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
+
+<!-- ClickTale Bottom part -->
+<div id="ClickTaleDiv" style="display: none;"></div>
+<script type="text/javascript">
+if(document.location.protocol!='https:')
+  document.write(unescape("%3Cscript%20src='http://s.clicktale.net/WRb.js'%20type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+if(typeof ClickTale=='function') ClickTale(206,0.3,"www03");
+</script>
+<!-- ClickTale end of Bottom part -->
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-6016902-1");
+pageTracker._trackPageview();
+</script>
+<!-- Google Analytics end -->
+
+</body>
+</html>

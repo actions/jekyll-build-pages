@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Blogging Like a Hacker</title>
+   <meta name="author" content="Tom Preston-Werner" />
+   <link href="http://feeds.feedburner.com/tom-preston-werner" rel="alternate" title="Tom Preston-Werner" type="application/atom+xml" />
+   <meta name="readability-verification" content="QCzSs992GxmRYRKVpPeZ6LE2tS8aYKxsSSQKV8YM"/>
+
+   <!-- syntax highlighting CSS -->
+   <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="/css/screen.css" type="text/css" media="screen, projection" />
+
+   <!-- Typekit -->
+   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
+   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+</head>
+<body>
+
+<!-- ClickTale Top part -->
+<script type="text/javascript">
+var WRInitTime=(new Date()).getTime();
+</script>
+<!-- ClickTale end of Top part -->
+
+<div class="site">
+  <div class="title">
+    <a href="/">Tom Preston-Werner</a>
+    <a class="extra" href="/">home</a>
+  </div>
+
+  <div id="post">
+<h1 id="blogging-like-a-hacker">Blogging Like a Hacker</h1>
+
+<p class="meta">17 Nov 2008 - San Francisco</p>
+
+<p>Back in 2000, when I thought I was going to be a professional writer, I spent
+hours a day on LiveJournal doing writing practice with other aspiring poets and
+authors. Since then I’ve blogged at three different domains about web standards,
+print design, photography, Flash, illustration, information architecture,
+ColdFusion, package management, PHP, CSS, advertising, Ruby, Rails, and Erlang.</p>
+
+<p>I love writing. I get a kick out of sharing my thoughts with others. The act of
+transforming ideas into words is an amazingly efficient way to solidify and
+refine your thoughts about a given topic. But as much as I enjoy blogging, I
+seem to be stuck in a cycle of quitting and starting over. Before starting the
+current iteration, I resolved to do some introspection to determine the factors
+that were leading to this destructive pattern.</p>
+
+<p>I already knew a lot about what I <em>didn’t</em> want. I was tired of complicated
+blogging engines like WordPress and Mephisto. I wanted to write great posts, not
+style a zillion template pages, moderate comments all day long, and constantly
+lag behind the latest software release. Something like Posterous looked
+attractive, but I wanted to style my blog, and it needed to be hosted at the
+domain of my choosing. For the same reason, other hosted sites (wordpress.com,
+blogger.com) were disqualified. There are a few people directly using GitHub as
+a blog (which is very cool), but that’s a bit too much of an impedance mismatch
+for my tastes.</p>
+
+<p>On Sunday, October 19th, I sat down in my San Francisco apartment with a glass
+of apple cider and a clear mind. After a period of reflection, I had an idea.
+While I’m not specifically trained as an author of prose, I <em>am</em> trained as an
+author of code. What would happen if I approached blogging from a software
+development perspective? What would that look like?</p>
+
+<p>First, all my writing would be stored in a Git repository. This would ensure
+that I could try out different ideas and explore a variety of posts all from the
+comfort of my preferred editor and the command line. I’d be able to publish a
+post via a simple deploy script or post-commit hook. Complexity would be kept to
+an absolute minimum, so a static site would be preferable to a dynamic site that
+required ongoing maintenance. My blog would need to be easily customizable;
+coming from a graphic design background means I’ll always be tweaking the site’s
+appearance and layout.</p>
+
+<p>Over the last month I’ve brought these concepts to fruition and I’m pleased to
+announce <a href="http://github.com/mojombo/jekyll">Jekyll</a>. Jekyll is a simple, blog
+aware, static site generator. It takes a template directory (representing the
+raw form of a website), runs it through Textile and Liquid converters, and spits
+out a complete, static website suitable for serving with Apache or your favorite
+web server. If you’re reading this on the website
+(http://tom.preston-werner.com), you’re seeing a Jekyll generated blog!</p>
+
+<p>To understand how this all works, open up my <a href="http://github.com/mojombo/tpw">TPW</a>
+repo in a new browser window. I’ll be referencing the code there.</p>
+
+<p>Take a look at
+<a href="http://github.com/mojombo/tpw/tree/master/index.html">index.html</a>. This file
+represents the homepage of the site. At the top of the file is a chunk of YAML
+that contains metadata about the file. This data tells Jekyll what layout to
+give the file, what the page’s title should be, etc. In this case, I specify
+that the “default” template should be used. You can find the layout files in the
+<a href="http://github.com/mojombo/tpw/tree/master/_layouts">_layouts</a> directory. If you
+open
+<a href="http://github.com/mojombo/tpw/tree/master/_layouts/default.html">default.html</a>
+you can see that the homepage is constructed by wrapping index.html with this
+layout.</p>
+
+<p>You’ll also notice Liquid templating code in these files.
+<a href="http://www.liquidmarkup.org/">Liquid</a> is a simple, extensible templating
+language that makes it easy to embed data in your templates. For my homepage I
+wanted to have a list of all my blog posts. Jekyll hands me a Hash containing
+various data about my site. A reverse chronological list of all my blog posts
+can be found in <code>site.posts</code>. Each post, in turn, contains various
+fields such as <code>title</code> and <code>date</code>.</p>
+
+<p>Jekyll gets the list of blog posts by parsing the files in the
+<a href="http://github.com/mojombo/tpw/tree/master/_posts">_posts</a> directory. Each post’s
+filename contains the publishing date and slug (what shows up in the URL) that
+the final HTML file should have. Open up the file corresponding to this blog
+post:
+<a href="http://github.com/mojombo/tpw/tree/master/_posts/2008-11-17-blogging-like-a-hacker.textile">2008-11-17-blogging-like-a-hacker.textile</a>.
+GitHub renders textile files by default, so to better understand the file, click
+on the
+<a href="http://github.com/mojombo/tpw/tree/master/_posts/2008-11-17-blogging-like-a-hacker.textile?raw=true">raw</a>
+view to see the original file. Here I’ve specified the <code>post</code> layout.
+If you look at that file you’ll see an example of a nested layout. Layouts can
+contain other layouts allowing you a great deal of flexibility in how pages are
+assembled. In my case I use a nested layout in order to show related posts for
+each blog entry. The YAML also specifies the post’s title which is then embedded
+in the post’s body via Liquid.</p>
+
+<p>Posts are handled in a special way by Jekyll. The date you specify in the
+filename is used to construct the URL in the generated site. This post, for
+instance, ends up at
+<code>http://tom.preston-werner.com/2008/11/17/blogging-like-a-hacker.html</code>.</p>
+
+<p>Files that do not reside in directories prefixed with an underscore are mirrored
+into a corresponding directory structure in the generated site. If a file does
+not have a YAML preface, it is not run through the Liquid interpreter. Binary
+files are copied over unmodified.</p>
+
+<p>In order to convert your raw site into the finished version, you simply run:</p>
+
+<pre class="terminal"><code>$ jekyll /path/to/raw/site
+/path/to/place/generated/site</code></pre>
+
+<p>Jekyll is still a very young project. I’ve only developed the exact
+functionality that I’ve needed. As time goes on I’d like to see the project
+mature and support additional features. If you end up using Jekyll for your own
+blog, drop me a line and let me know what you’d like to see in future versions.
+Better yet, fork the project over at GitHub and hack in the features yourself!</p>
+
+<p>I’ve been living with Jekyll for just over a month now. I love it. Driving the
+development of Jekyll based on the needs of my blog has been very rewarding. I
+can edit my posts in TextMate, giving me automatic and competent spell checking.
+I have immediate and first class access to the CSS and page templates.
+Everything is backed up on GitHub. I feel a lightness now when I’m writing a
+post. The system is simple enough that I can keep the entire conversion process
+in my head. The distance from my brain to my blog has shrunk, and, in the end, I
+think that will make me a better author.</p>
+
+</div>
+
+<div id="related">
+  <h2>Related Posts</h2>
+  <ul class="posts">
+    
+      <li><span>10 Nov 2016</span> &raquo; <a href="/2016/11/10/snyk.html">Snyk - Automatically Scan and Fix Ruby and Nodejs Vulnerabilities</a></li>
+    
+      <li><span>19 Jun 2015</span> &raquo; <a href="/2015/06/19/replicated.html">Replicated - An Easier Path from SaaS to Enterprise</a></li>
+    
+      <li><span>21 Apr 2014</span> &raquo; <a href="/2014/04/21/farewell-github-hello-immersive-computing.html">Farewell GitHub, Hello Immersive Computing</a></li>
+    
+  </ul>
+</div>
+
+  <div class="footer">
+    <div class="contact">
+      <p>
+        Tom Preston-Werner
+        <br />
+        Cofounder of
+          <a href="https://codestarter.org/">Codestarter</a>,
+          <a href="https://github.com/">GitHub</a>
+        <br />
+        tom@mojombo.com
+      </p>
+    </div>
+    <div class="contact">
+      <p>
+        <a href="http://github.com/mojombo/">github.com/mojombo</a><br />
+        <a href="http://twitter.com/mojombo/">twitter.com/mojombo</a><br />
+      </p>
+    </div>
+    <div class="rss">
+      <a href="http://feeds.feedburner.com/tom-preston-werner">
+        <img src="/images/rss.png" alt="Subscribe to RSS Feed" />
+      </a>
+    </div>
+  </div>
+</div>
+
+<a href="http://github.com/mojombo"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
+
+<!-- ClickTale Bottom part -->
+<div id="ClickTaleDiv" style="display: none;"></div>
+<script type="text/javascript">
+if(document.location.protocol!='https:')
+  document.write(unescape("%3Cscript%20src='http://s.clicktale.net/WRb.js'%20type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+if(typeof ClickTale=='function') ClickTale(206,0.3,"www03");
+</script>
+<!-- ClickTale end of Bottom part -->
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-6016902-1");
+pageTracker._trackPageview();
+</script>
+<!-- Google Analytics end -->
+
+</body>
+</html>
