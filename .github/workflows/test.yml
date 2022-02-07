@@ -9,20 +9,45 @@ on:
   pull_request:
     paths-ignore:
       - 'README.md'
+env:
+  # Use docker.io for Docker Hub if empty
+  REGISTRY: ghcr.io
+  # github.repository as <account>/<repo>
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  resolve-image-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.regex-match.outputs.group1 }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Grep action.yaml content
+        id: grep-image-content
+        run: |
+          image=$(grep -E "jekyll-build-pages.*\'" action.yml)
+          echo "::set-output name=image::$image"
+      - uses: actions-ecosystem/action-regex-match@v2
+        id: regex-match
+        with:
+          text: ${{ steps.grep-image-content.outputs.image }}
+          regex: "jekyll-build-pages:(.*)'"
+
   test-simple:
+    needs: resolve-image-tag
     runs-on: ubuntu-latest
     env:
       TEST_NAME: simple
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      - name: Render Action Metadata
-        run: |
-          ./bin/render_action_metadata Dockerfile > action.yml
-
+      - name: Build local docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: Dockerfile
+          tags: ${{ needs.resolve-image-tag.outputs.tag }}
       - name: Test ${{ env.TEST_NAME }} Project
         uses: ./
         with:
@@ -36,17 +61,19 @@ jobs:
           ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
 
   test-readme:
+    needs: resolve-image-tag
     runs-on: ubuntu-latest
     env:
       TEST_NAME: readme
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      - name: Render Action Metadata
-        run: |
-          ./bin/render_action_metadata Dockerfile > action.yml
-
+      - name: Build local docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: Dockerfile
+          tags: ${{ needs.resolve-image-tag.outputs.tag }}
       - name: Test ${{ env.TEST_NAME }} Project
         uses: ./
         with:
@@ -60,17 +87,19 @@ jobs:
           ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
 
   test-octicons:
+    needs: resolve-image-tag
     runs-on: ubuntu-latest
     env:
       TEST_NAME: octicons
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      - name: Render Action Metadata
-        run: |
-          ./bin/render_action_metadata Dockerfile > action.yml
-
+      - name: Build local docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: Dockerfile
+          tags: ${{ needs.resolve-image-tag.outputs.tag }}
       - name: Test ${{ env.TEST_NAME }} Project
         uses: ./
         with:
@@ -84,17 +113,19 @@ jobs:
           ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
 
   test-mojombo:
+    needs: resolve-image-tag
     runs-on: ubuntu-latest
     env:
       TEST_NAME: mojombo
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      - name: Render Action Metadata
-        run: |
-          ./bin/render_action_metadata Dockerfile > action.yml
-
+      - name: Build local docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: Dockerfile
+          tags: ${{ needs.resolve-image-tag.outputs.tag }}
       - name: Test ${{ env.TEST_NAME }} Project
         uses: ./
         with:
@@ -108,17 +139,19 @@ jobs:
           ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
 
   test-themes:
+    needs: resolve-image-tag
     runs-on: ubuntu-latest
     env:
       TEST_NAME: themes
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      - name: Render Action Metadata
-        run: |
-          ./bin/render_action_metadata Dockerfile > action.yml
-
+      - name: Build local docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: Dockerfile
+          tags: ${{ needs.resolve-image-tag.outputs.tag }}
       - name: Test ${{ env.TEST_NAME }} Project
         uses: ./
         with:
@@ -132,17 +165,19 @@ jobs:
           ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
 
   test-jekyll-include-cache:
+    needs: resolve-image-tag
     runs-on: ubuntu-latest
     env:
       TEST_NAME: jekyll-include-cache
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      - name: Render Action Metadata
-        run: |
-          ./bin/render_action_metadata Dockerfile > action.yml
-
+      - name: Build local docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: Dockerfile
+          tags: ${{ needs.resolve-image-tag.outputs.tag }}
       - name: Test ${{ env.TEST_NAME }} Project
         uses: ./
         with:
@@ -162,11 +197,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      - name: Render Action Metadata
-        run: |
-          ./bin/render_action_metadata Dockerfile > action.yml
-
+      - name: Build local docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: Dockerfile
+          tags: ${{ needs.resolve-image-tag.outputs.tag }}
       - name: Test ${{ env.TEST_NAME }} Project
         uses: ./
         with:
@@ -187,9 +223,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Render Action Metadata
-        run: |
-          ./bin/render_action_metadata Dockerfile > action.yml
+      - name: Build local docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: Dockerfile
+          tags: ${{ needs.resolve-image-tag.outputs.tag }}
 
       - name: Test ${{ env.TEST_NAME }} Project
         uses: ./
