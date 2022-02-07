@@ -197,11 +197,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      - name: Render Action Metadata
-        run: |
-          ./bin/render_action_metadata Dockerfile > action.yml
-
+      - name: Build local docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: Dockerfile
+          tags: ${{ needs.resolve-image-tag.outputs.tag }}
       - name: Test ${{ env.TEST_NAME }} Project
         uses: ./
         with:
@@ -222,9 +223,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Render Action Metadata
-        run: |
-          ./bin/render_action_metadata Dockerfile > action.yml
+      - name: Build local docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: Dockerfile
+          tags: ${{ needs.resolve-image-tag.outputs.tag }}
 
       - name: Test ${{ env.TEST_NAME }} Project
         uses: ./
