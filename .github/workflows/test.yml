@@ -23,7 +23,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: grep action.yaml content
+      - name: Grep action.yaml content
         id: grep-image-content
         run: |
           image=$(grep -E "jekyll-build-pages.*\'" action.yml)
