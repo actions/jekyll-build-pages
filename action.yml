@@ -1,5 +1,3 @@
-# Generated from action.yml.erb
-# ad33d11e368da214b9a32be1ea61b996
 name: 'Pages Jekyll'
 description: 'A simple GitHub Action for producing Jekyll build artifacts compatible with GitHub Pages'
 inputs:
@@ -29,4 +27,4 @@ inputs:
     default: ${{ github.token }}
 runs:
   using: 'docker'
-  image: 'docker://ghcr.io/actions/jekyll-build-pages:main'
+  image: 'docker://ghcr.io/actions/jekyll-build-pages:v1.0.1'
