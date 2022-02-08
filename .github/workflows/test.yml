@@ -57,14 +57,14 @@ jobs:
           context: .
           file: Dockerfile
           tags: ${{ needs.resolve-image-tag.outputs.tag }}
-      - name: Test ${{ matrix.name }} Project
+      - name: Test ${{ matrix.test }} Project
         uses: ./
         with:
-          source: ./test_projects/${{ matrix.name }}
-          destination: ./test_projects/${{ matrix.name }}/_site
+          source: ./test_projects/${{ matrix.test }}
+          destination: ./test_projects/${{ matrix.test }}/_site
           build_revision: JEKYLL_BUILD_REVISION
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify output
         run: |
-          ./bin/compare_expected_output ./test_projects/${{matrix.name}}
+          ./bin/compare_expected_output ./test_projects/${{matrix.test}}
