@@ -243,3 +243,32 @@ jobs:
       - name: Verify output
         run: |
           ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
+
+  test-runner-has-permission:
+    needs: resolve-image-tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Build local docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: Dockerfile
+          tags: ${{ needs.resolve-image-tag.outputs.tag }}
+      - name: Build simple project
+        uses: ./
+        with:
+          source: ./test_projects/simple
+          destination: ./test_projects/simple/_site
+          build_revision: JEKYLL_BUILD_REVISION
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify permissions on the build assets
+        run: |
+          if ! [[ -r ./test_projects/simple/_site/index.html ]]; then
+            echo '::error::Read permission is missing' && exit 1
+          fi
+          if ! [[ -w ./test_projects/simple/_site/index.html ]]; then
+            echo '::error::Write permission is missing' && exit 1
+          fi
+        shell: bash
