@@ -1,14 +1,14 @@
-name: 'Test'
+name: "Test"
 
 on:
   push:
     branches:
       - main
     paths-ignore:
-      - 'README.md'
+      - "README.md"
   pull_request:
     paths-ignore:
-      - 'README.md'
+      - "README.md"
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
@@ -34,11 +34,20 @@ jobs:
           text: ${{ steps.grep-image-content.outputs.image }}
           regex: "jekyll-build-pages:(.*)'"
 
-  test-simple:
+  test-builds:
     needs: resolve-image-tag
     runs-on: ubuntu-latest
-    env:
-      TEST_NAME: simple
+    strategy:
+      matrix:
+        test:
+          - simple
+          - readme
+          - octicons
+          - mojombo
+          - themes
+          - jekyll-include-cache
+          - future-false
+          - future-true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -48,198 +57,14 @@ jobs:
           context: .
           file: Dockerfile
           tags: ${{ needs.resolve-image-tag.outputs.tag }}
-      - name: Test ${{ env.TEST_NAME }} Project
+      - name: Test ${{ matrix.name }} Project
         uses: ./
         with:
-          source: ./test_projects/${{ env.TEST_NAME }}
-          destination: ./test_projects/${{ env.TEST_NAME }}/_site
+          source: ./test_projects/${{ matrix.name }}
+          destination: ./test_projects/${{ matrix.name }}/_site
           build_revision: JEKYLL_BUILD_REVISION
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify output
         run: |
-          ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
-
-  test-readme:
-    needs: resolve-image-tag
-    runs-on: ubuntu-latest
-    env:
-      TEST_NAME: readme
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Build local docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: Dockerfile
-          tags: ${{ needs.resolve-image-tag.outputs.tag }}
-      - name: Test ${{ env.TEST_NAME }} Project
-        uses: ./
-        with:
-          source: ./test_projects/${{ env.TEST_NAME }}
-          destination: ./test_projects/${{ env.TEST_NAME }}/_site
-          build_revision: JEKYLL_BUILD_REVISION
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Verify output
-        run: |
-          ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
-
-  test-octicons:
-    needs: resolve-image-tag
-    runs-on: ubuntu-latest
-    env:
-      TEST_NAME: octicons
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Build local docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: Dockerfile
-          tags: ${{ needs.resolve-image-tag.outputs.tag }}
-      - name: Test ${{ env.TEST_NAME }} Project
-        uses: ./
-        with:
-          source: ./test_projects/${{ env.TEST_NAME }}
-          destination: ./test_projects/${{ env.TEST_NAME }}/_site
-          build_revision: JEKYLL_BUILD_REVISION
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Verify output
-        run: |
-          ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
-
-  test-mojombo:
-    needs: resolve-image-tag
-    runs-on: ubuntu-latest
-    env:
-      TEST_NAME: mojombo
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Build local docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: Dockerfile
-          tags: ${{ needs.resolve-image-tag.outputs.tag }}
-      - name: Test ${{ env.TEST_NAME }} Project
-        uses: ./
-        with:
-          source: ./test_projects/${{ env.TEST_NAME }}
-          destination: ./test_projects/${{ env.TEST_NAME }}/_site
-          build_revision: JEKYLL_BUILD_REVISION
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Verify output
-        run: |
-          ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
-
-  test-themes:
-    needs: resolve-image-tag
-    runs-on: ubuntu-latest
-    env:
-      TEST_NAME: themes
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Build local docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: Dockerfile
-          tags: ${{ needs.resolve-image-tag.outputs.tag }}
-      - name: Test ${{ env.TEST_NAME }} Project
-        uses: ./
-        with:
-          source: ./test_projects/${{ env.TEST_NAME }}
-          destination: ./test_projects/${{ env.TEST_NAME }}/_site
-          build_revision: JEKYLL_BUILD_REVISION
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Verify output
-        run: |
-          ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
-
-  test-jekyll-include-cache:
-    needs: resolve-image-tag
-    runs-on: ubuntu-latest
-    env:
-      TEST_NAME: jekyll-include-cache
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Build local docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: Dockerfile
-          tags: ${{ needs.resolve-image-tag.outputs.tag }}
-      - name: Test ${{ env.TEST_NAME }} Project
-        uses: ./
-        with:
-          source: ./test_projects/${{ env.TEST_NAME }}
-          destination: ./test_projects/${{ env.TEST_NAME }}/_site
-          build_revision: JEKYLL_BUILD_REVISION
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Verify output
-        run: |
-          ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
-
-  test-future-false:
-    needs: resolve-image-tag
-    runs-on: ubuntu-latest
-    env:
-      TEST_NAME: future-false
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Build local docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: Dockerfile
-          tags: ${{ needs.resolve-image-tag.outputs.tag }}
-      - name: Test ${{ env.TEST_NAME }} Project
-        uses: ./
-        with:
-          source: ./test_projects/${{ env.TEST_NAME }}
-          destination: ./test_projects/${{ env.TEST_NAME }}/_site
-          build_revision: JEKYLL_BUILD_REVISION
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Verify output
-        run: |
-          ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
-
-  test-future-true:
-    needs: resolve-image-tag
-    runs-on: ubuntu-latest
-    env:
-      TEST_NAME: future-true
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Build local docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: Dockerfile
-          tags: ${{ needs.resolve-image-tag.outputs.tag }}
-
-      - name: Test ${{ env.TEST_NAME }} Project
-        uses: ./
-        with:
-          source: ./test_projects/${{ env.TEST_NAME }}
-          destination: ./test_projects/${{ env.TEST_NAME }}/_site
-          build_revision: JEKYLL_BUILD_REVISION
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Verify output
-        run: |
-          ./bin/compare_expected_output ./test_projects/${{env.TEST_NAME}}
+          ./bin/compare_expected_output ./test_projects/${{matrix.name}}
