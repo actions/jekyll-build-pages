@@ -12,3 +12,4 @@ gem "github-pages", "= 225"
 # even though it is included in the original GitHub Pages build infrastructure.
 gem "jekyll-include-cache", "= 0.2.1"
 gem "jekyll-octicons", "~> 14.2"
+gem "faraday", "~> 1.10"

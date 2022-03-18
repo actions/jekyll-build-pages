@@ -20,6 +20,7 @@ ENV LANGUAGE en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 
 COPY entrypoint.sh /entrypoint.sh
+COPY bin/emit_telemetry /emit_telemetry
 
 ENTRYPOINT ["/entrypoint.sh"]
 

@@ -1,0 +1,41 @@
+#! /usr/bin/env ruby
+
+require "faraday"
+require "faraday/retry"
+require "json"
+
+ACTION_NWO = ENV["GITHUB_ACTION_REPOSITORY"]
+REPOSITORY_NWO = ENV["GITHUB_REPOSITORY"]
+GITHUB_RUN_ID = ENV["GITHUB_RUN_ID"]
+GITHUB_TOKEN = ENV["INPUT_TOKEN"]
+TELEMETRY_URL = "https://api.github.com/repos/#{REPOSITORY_NWO}/pages/telemetry"
+RETRY_COUNT = 3
+
+RETRY_OPTIONS = {
+  max: RETRY_COUNT,
+  methods: [:post],
+  retry_statuses: [500, 502, 503, 504],
+  interval: 1,
+  backoff_factor: 2,
+}
+
+begin
+  connection = Faraday.new { |f| f.request :retry, RETRY_OPTIONS }
+  response = connection.post(
+    TELEMETRY_URL,
+    { github_run_id: GITHUB_RUN_ID }.to_json,
+    {
+      Accept: 'application/vnd.github.v3+json',
+      Authorization: "Bearer #{GITHUB_TOKEN}",
+      'Content-type': 'application/json',
+      'User-Agent': "#{ACTION_NWO} Faraday #{Faraday::VERSION}",
+    },
+  )
+
+  unless response.success?
+    STDERR.puts "failed to emit pages build telemetry to #{TELEMETRY_URL}: returned status code: #{response.status} after #{RETRY_COUNT + 1} attempts"
+    STDERR.puts response.body if response.body
+  end
+rescue e
+  STDERR.puts "failed to emit pages build telemetry: #{e}"
+end
