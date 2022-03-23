@@ -32,10 +32,12 @@ begin
     },
   )
 
-  unless response.success?
-    STDERR.puts "failed to emit pages build telemetry to #{TELEMETRY_URL}: returned status code: #{response.status} after #{RETRY_COUNT + 1} attempts"
+  if response.success?
+    STDERR.puts "Sending telemetry for run id #{GITHUB_RUN_ID}"
+  else response.success?
+    STDERR.puts "Failed to emit pages build telemetry to #{TELEMETRY_URL} : returned status code: #{response.status} after #{RETRY_COUNT + 1} attempts"
     STDERR.puts response.body if response.body
   end
 rescue e
-  STDERR.puts "failed to emit pages build telemetry: #{e}"
+  STDERR.puts "Failed to emit pages build telemetry: #{e}"
 end
