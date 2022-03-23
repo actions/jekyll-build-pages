@@ -35,5 +35,3 @@ fi
 
 cd "$PAGES_GEM_HOME"
 $GITHUB_PAGES build "$VERBOSE" "$FUTURE" --source "$SOURCE_DIRECTORY" --destination "$DESTINATION_DIRECTORY"
-
-/emit_telemetry
