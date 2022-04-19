@@ -2,67 +2,67 @@ name: Record Expected
 
 on:
   workflow_dispatch:
+  pull_request:
+
+env:
+  # Use docker.io for Docker Hub if empty
+  REGISTRY: ghcr.io
+  # github.repository as <account>/<repo>
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  record-expected-output:
+  resolve-image-tag:
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.regex-match.outputs.group1 }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: Grep action.yaml content
+        id: grep-image-content
+        run: |
+          image=$(grep -E "jekyll-build-pages.*\'" action.yml)
+          echo "::set-output name=image::$image"
+      - uses: actions-ecosystem/action-regex-match@v2
+        id: regex-match
+        with:
+          text: ${{ steps.grep-image-content.outputs.image }}
+          regex: "jekyll-build-pages:(.*)'"
 
-      - name: Build test project 'simple'
+  test-builds:
+    needs: resolve-image-tag
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test:
+          - simple
+          - readme
+          - octicons
+          - mojombo
+          - themes
+          - jekyll-include-cache
+          - future-false
+          - future-true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Build local docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: Dockerfile
+          tags: ${{ needs.resolve-image-tag.outputs.tag }}
+
+      - name: Build ${{ matrix.test }} Project
         uses: ./
         with:
-          source: test_projects/simple
-          destination: test_projects/simple/_expected
+          source: ./test_projects/${{ matrix.test }}
+          destination: ./test_projects/${{ matrix.test }}/_expected
           build_revision: JEKYLL_BUILD_REVISION
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build test project 'readme'
-        uses: ./
+      - name: Archive ${{ matrix.test }} Project
+        uses: actions/upload-artifact@v3
         with:
-          source: test_projects/readme
-          destination: test_projects/readme/_expected
-          build_revision: JEKYLL_BUILD_REVISION
-
-      - name: Build test project 'octicons'
-        uses: ./
-        with:
-          source: test_projects/octicons
-          destination: test_projects/octicons/_expected
-          build_revision: JEKYLL_BUILD_REVISION
-
-      - name: Build test project 'mojombo'
-        uses: ./
-        with:
-          source: test_projects/mojombo
-          destination: test_projects/mojombo/_expected
-          build_revision: JEKYLL_BUILD_REVISION
-
-      - name: Build test project 'themes'
-        uses: ./
-        with:
-          source: test_projects/themes
-          destination: test_projects/themes/_expected
-          build_revision: JEKYLL_BUILD_REVISION
-
-      - name: Build test project 'jekyll-include-cache'
-        uses: ./
-        with:
-          source: test_projects/jekyll-include-cache
-          destination: test_projects/jekyll-include-cache/_expected
-          build_revision: JEKYLL_BUILD_REVISION
-
-      - name: Build test project 'future-false'
-        uses: ./
-        with:
-          source: test_projects/future-false
-          destination: test_projects/future-false/_expected
-          build_revision: JEKYLL_BUILD_REVISION
-
-      - name: Build test project 'future-true'
-        uses: ./
-        with:
-          source: test_projects/future-true
-          destination: test_projects/future-true/_expected
-          build_revision: JEKYLL_BUILD_REVISION
-
+          name: ${{ matrix.test }}
+          path: ./test_projects/${{ matrix.test }}/_expected
