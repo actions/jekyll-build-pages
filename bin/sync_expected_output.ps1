@@ -57,34 +57,27 @@ $ErrorActionPreference = 'Stop'
 # Get git ref name
 $ref = Get-GitRef
 
-# # Run the workflow
-# Write-Host 'Queue workflow'
-# $workflow = 'record.yml'
-# Invoke-Command { & gh workflow run $workflow --ref $ref | Out-Null }
+# Run the workflow
+Write-Host 'Queue workflow'
+$workflow = 'record.yml'
+Invoke-Command { & gh workflow run $workflow --ref $ref | Out-Null }
 
-# # Wait for a few seconds for the workflow to get created
-# Write-Host 'Wait a few seconds...'
-# Start-Sleep -Seconds 5
+# Wait for a few seconds for the workflow to get created
+Write-Host 'Wait a few seconds...'
+Start-Sleep -Seconds 5
 
-# # Lookup the run id (it is not perfect because of the APIs...)
-# Write-Host 'Lookup run id'
-# $runId = Invoke-Command { & gh run list --workflow $workflow --branch $ref --limit 100 --json databaseId --jq '.[].databaseId' }
+# Lookup the run id (it is not perfect because of the APIs...)
+Write-Host 'Lookup run id'
+$runId = Invoke-Command { & gh run list --workflow $workflow --branch $ref --limit 100 --json databaseId --jq '.[].databaseId' }
 
-# # Wait for the workflow to finish
-# Write-Host "Wait for workflow $runId to complete"
-# Invoke-Command { & gh run watch $runId --exit-status }
+# Wait for the workflow to finish
+Write-Host "Wait for workflow $runId to complete"
+Invoke-Command { & gh run watch $runId --exit-status }
 
-# # Download the artifacts in a temp folder
-# Write-Host 'Download artifacts'
-# $tempFolder = New-TemporaryFolder
-# Invoke-Command { & gh run download $runId --dir $tempFolder }
-
-
-# TEMP
-$tempFolder = '/var/folders/0p/xh302z2x64b64_4l9xc5n7bm0000gn/T/959ec25f-986e-48b1-b6a8-155cd7ba62fe'
-
-Write-Host $tempFolder
-$runId = 2748946582
+# Download the artifacts in a temp folder
+Write-Host 'Download artifacts'
+$tempFolder = New-TemporaryFolder
+Invoke-Command { & gh run download $runId --dir $tempFolder }
 
 # Iterate over the test projects
 Get-ChildItem -Path $testProjectsPath -Directory | ForEach-Object {
@@ -93,7 +86,7 @@ Get-ChildItem -Path $testProjectsPath -Directory | ForEach-Object {
   if (Test-Path $artifactPath -PathType 'Container') {
     # Copy artifact to the expected output folder
     $destinationPath = Join-Path $testProjectsPath $_.BaseName '_expected'
-    Copy-Item -Path $artifactPath -Destination $destinationPath -Recurse | Out-Null
+    Copy-Item -Path (Join-Path $artifactPath '*') -Destination $destinationPath -Recurse -Force | Out-Null
   }
 
   # Ignore test project
