@@ -68,7 +68,7 @@ Start-Sleep -Seconds 5
 
 # Lookup the run id (it is not perfect because of the APIs...)
 Write-Host 'Lookup run id'
-$runId = Invoke-Command { & gh run list --workflow $workflow --branch $ref --limit 100 --json databaseId --jq '.[].databaseId' }
+$runId = Invoke-Command { & gh run list --workflow $workflow --branch $ref --limit 1 --json databaseId --jq '.[].databaseId' }
 
 # Wait for the workflow to finish
 Write-Host "Wait for workflow $runId to complete"
