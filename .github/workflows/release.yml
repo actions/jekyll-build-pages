@@ -1,11 +1,11 @@
-name: Release new action version
+name: Release
 on:
   release:
-    types: [edited]
+    types: [released]
   workflow_dispatch:
     inputs:
       TAG_NAME:
-        description: 'Tag name that the major tag will point to'
+        description: "Tag name that the major tag will point to"
         required: true
 
 env:
@@ -13,12 +13,15 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
+permissions:
+  contents: write
+
 jobs:
   verify_release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Grep action.yaml content
         id: grep-image-content
         run: |
@@ -37,11 +40,13 @@ jobs:
           fi
       - name: Verify image published
         run: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_NAME }}
+
   update_tag:
     needs: verify_release
     name: Update the major tag to include the ${{ github.event.inputs.TAG_NAME || github.event.release.tag_name }} changes
     environment:
-      name: releaseNewActionVersion
+      # Note: this environment is protected
+      name: Release
     runs-on: ubuntu-latest
     outputs:
       major_tag: ${{ steps.update-major-tag.outputs.major-tag }}
