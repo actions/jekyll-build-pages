@@ -18,6 +18,7 @@ export JEKYLL_ENV="production"
 export JEKYLL_GITHUB_TOKEN=$INPUT_TOKEN
 export PAGES_REPO_NWO=$GITHUB_REPOSITORY
 export JEKYLL_BUILD_REVISION=$INPUT_BUILD_REVISION
+export PAGES_API_URL=$API_URL
 
 # Set verbose flag
 if [ "$INPUT_VERBOSE" = 'true' ]; then
