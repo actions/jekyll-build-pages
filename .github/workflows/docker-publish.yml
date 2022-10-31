@@ -60,8 +60,3 @@ jobs:
           push: true
           tags: ${{ steps.generate-image-tags.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-      # Drafts your next Release notes as Pull Requests are merged into "main"
-      - uses: release-drafter/release-drafter@v5
-        if: github.ref_name == 'main'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
