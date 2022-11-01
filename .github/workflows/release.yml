@@ -26,7 +26,7 @@ jobs:
         id: grep-image-content
         run: |
           image=$(grep -E "jekyll-build-pages.*\'" action.yml)
-          echo "::set-output name=image::$image"
+          echo "image=$image" >> $GITHUB_OUTPUT
       - uses: actions-ecosystem/action-regex-match@v2
         id: regex-match
         with:
