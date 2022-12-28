@@ -13,6 +13,11 @@ DESTINATION_DIRECTORY=${GITHUB_WORKSPACE}/$INPUT_DESTINATION
 PAGES_GEM_HOME=$BUNDLE_APP_CONFIG
 GITHUB_PAGES=$PAGES_GEM_HOME/bin/github-pages
 
+# Check if Gemfile's dependencies are satisfied or print a warning 
+if test -e "$SOURCE_DIRECTORY/Gemfile" && ! bundle check --dry-run --gemfile "$SOURCE_DIRECTORY/Gemfile" >/dev/null 2>&1; then
+  echo "::warning:: github-pages can't satisfy your Gemfile's dependencies."
+fi
+
 # Set environment variables required by supported plugins
 export JEKYLL_ENV="production"
 export JEKYLL_GITHUB_TOKEN=$INPUT_TOKEN
