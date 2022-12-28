@@ -1,10 +1,10 @@
 #!/bin/bash
 
-#######################################################################################################
+####################################################################################################
 #
-# Calls github-pages executable to build the site using whitelisted plugins and supported configuration
+# Calls github-pages executable to build the site using allowed plugins and supported configuration
 #
-#######################################################################################################
+####################################################################################################
 
 set -o errexit
 

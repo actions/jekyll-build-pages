@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - '**.sh'
+      # this is too wide but will cover shell scripts without an extension in that folder
+      - 'bin/*'
 
 jobs:
   shellcheck:
