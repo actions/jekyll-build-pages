@@ -19,20 +19,21 @@ jobs:
   resolve-image-tag:
     runs-on: ubuntu-latest
     outputs:
-      tag: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.regex-match.outputs.group1 }}
+      tag: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.regex-match.outputs.tag_match }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Grep action.yaml content
-        id: grep-image-content
-        run: |
-          image=$(grep -E "jekyll-build-pages.*\'" action.yml)
-          echo "image=$image" >> $GITHUB_OUTPUT
-      - uses: actions-ecosystem/action-regex-match@v2
+        uses: actions/checkout@v3
+      - name: Get action.yaml tag
         id: regex-match
-        with:
-          text: ${{ steps.grep-image-content.outputs.image }}
-          regex: "jekyll-build-pages:(.*)'"
+        run: |
+          action=$(<action.yml)
+          regex="jekyll-build-pages:(.*)'"
+
+          if [[ $action =~ $regex ]]
+          then
+              tag_match="${BASH_REMATCH[1]}"
+              echo "tag_match=$tag_match" >> $GITHUB_OUTPUT
+          fi
 
   test-builds:
     needs: resolve-image-tag
@@ -50,9 +51,9 @@ jobs:
           - future-true
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build local docker image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: .
           file: Dockerfile
