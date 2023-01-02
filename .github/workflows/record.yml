@@ -16,7 +16,7 @@ jobs:
       tag: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.regex-match.outputs.tag_match }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Get action.yaml tag
         id: regex-match
         run: |

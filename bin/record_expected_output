@@ -7,7 +7,7 @@ if [ "local" = "$1" ]; then
 
   for dir in test_projects/*
   do
-    bundle exec github-pages build --verbose -s "${dir}" -d "${dir}/_expected"
+    bundle exec jekyll-v4-github-pages build --verbose -s "${dir}" -d "${dir}/_expected"
   done
 else
   act -b -s GITHUB_TOKEN -j record-expected-output
