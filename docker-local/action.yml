@@ -1,4 +1,4 @@
-name: 'Build Jekyll for GitHub Pages'
+name: 'Build Jekyll for GitHub Pages (Local Docker)'
 description: 'A simple GitHub Action for producing Jekyll build artifacts compatible with GitHub Pages'
 author: 'GitHub'
 inputs:

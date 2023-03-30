@@ -1,4 +1,4 @@
-name: 'Build Jekyll for GitHub Pages'
+name: 'Build Jekyll for GitHub Pages (GHCR Docker)'
 description: 'A simple GitHub Action for producing Jekyll build artifacts compatible with GitHub Pages'
 author: 'GitHub'
 inputs:
@@ -28,4 +28,4 @@ inputs:
     default: ${{ github.token }}
 runs:
   using: 'docker'
-  image: 'Dockerfile'
+  image: 'docker://ghcr.io/actions/jekyll-build-pages:v1.0.7'
