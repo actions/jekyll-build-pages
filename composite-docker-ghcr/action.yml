@@ -31,7 +31,8 @@ runs:
   steps:
     - name: Run Pages Jekyll build using GHCR Docker image
       #uses: paper-spa/jekyll-build-pages/docker-ghcr@v1.0.7
-      uses: actions/jekyll-build-pages@main
+      #uses: actions/jekyll-build-pages@main
+      uses: actions/jekyll-build-pages@v1.0.7
       with:
         source: ${{ inputs.source }}
         destination: ${{ inputs.destination }}
