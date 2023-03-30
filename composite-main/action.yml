@@ -34,8 +34,12 @@ runs:
       # using an internal endpoint would be better than status page
       # but this is an acceptable starting point
       run: |
-        packagesStatus=$(curl -LSs https://www.githubstatus.com/api/v2/components.json | jq -r '.components[] | select(.name == "Packages") | .status')
-        echo status=$packagesStatus >> $GITHUB_OUTPUT
+        if [ -z "$FAKE_STATUS" ]; then
+          packagesStatus=$(curl -LSs https://www.githubstatus.com/api/v2/components.json | jq -r '.components[] | select(.name == "Packages") | .status')
+          echo status=$packagesStatus >> $GITHUB_OUTPUT
+        else
+          echo status=$FAKE_STATUS >> $GITHUB_OUTPUT
+        fi
 
     - if: ${{ steps.ghcr.outputs.status == 'operational' }}
       # load another composite action that pulls `docker://ghcr.io/...`
