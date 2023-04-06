@@ -51,8 +51,6 @@ runs:
       shell: bash
       env:
         DOCKER_REGISTRY: ghcr.io
-        # Manually override this while the composite action approach is WIP
-        GITHUB_ACTION_REPOSITORY: 'actions/jekyll-build-pages'
         # Docker container does NOT need INPUT_IMAGE_NAME so let's divert with its name
         TAG_NAME: ${{ inputs.image_version }}
         # Do we need to manually build the Docker image?
@@ -67,7 +65,7 @@ runs:
         INPUT_TOKEN: ${{ inputs.token }}
       run: |
         CLEAN_TAG_NAME=$(echo "${TAG_NAME}" | sed 's/[^a-zA-Z0-9._-].*$//g')
-        DOCKER_IMAGE_URL="${DOCKER_REGISTRY}/${GITHUB_ACTION_REPOSITORY}:${CLEAN_TAG_NAME}"
+        DOCKER_IMAGE_URL="${DOCKER_REGISTRY}/actions/jekyll-build-pages:${CLEAN_TAG_NAME}"
 
         # Modeled after: https://github.com/actions/runner/blob/1ceb1a67f270537fe80da23445fa78bfb97503ea/src/Runner.Worker/Container/ContainerInfo.cs#L37
         # example: ghcrioactionsjekyllbuildpagesv107_7ca21f
