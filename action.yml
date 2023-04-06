@@ -81,7 +81,7 @@ runs:
         # instead of trying to figure out the equivalent directory path
         LABEL_BASE="${GITHUB_RUN_ID}/${GITHUB_RUN_NUMBER}/${GITHUB_JOB}"
         LABEL_SHA=$(echo "${LABEL_BASE}" | openssl dgst -sha256)
-        DOCKER_CONTAINER_LABEL="${LABEL_SHA:0:6}""
+        DOCKER_CONTAINER_LABEL="${LABEL_SHA:0:6}"
 
         # Craft an expected image name in case we need to do the local build
         DOCKER_IMAGE_NAME=$DOCKER_IMAGE_URL
