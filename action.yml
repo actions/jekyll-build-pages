@@ -51,7 +51,7 @@ runs:
       run: |
         LABEL_BASE="${GITHUB_RUN_ID}/${GITHUB_RUN_NUMBER}/${GITHUB_JOB}"
         echo "LABEL_BASE=${LABEL_BASE}"
-        LABEL_SHA=$(echo "${LABEL_BASE}" | openssl dgst -sha256)
+        LABEL_SHA=$(echo "${LABEL_BASE}" | shasum -a 256 | awk '{print $1}')
         echo "LABEL_SHA=${LABEL_SHA}"
 
     - name: Create reusable values
