@@ -88,11 +88,13 @@ runs:
         fi
 
         # actions/runner source: https://github.com/actions/runner/blob/0484afeec71b612022e35ba80e5fe98a99cd0be8/src/Runner.Worker/Container/DockerCommandManager.cs#L130-L140
-        # Gather list of environment variable names starting with GITHUB_ or ACTIONS_
-        GITHUB_ENV_VARS=$(env | while IFS= read -r line; do key=${line%%=*}; if [[ "$key" =~ ^(GITHUB\|ACTIONS)_.+$ ]]; then printf -- '-e %s ' "$key"; fi; done)
+        # Gather list of environment variable names starting with GITHUB_
+        GITHUB_ENV_VARS=$(env | while IFS= read -r line; do key=${line%%=*}; if [[ "$key" =~ ^GITHUB_.+$ ]]; then printf -- '-e %s ' "$key"; fi; done)
+        # Gather list of environment variable names starting with ACTIONS_
+        ACTIONS_ENV_VARS=$(env | while IFS= read -r line; do key=${line%%=*}; if [[ "$key" =~ ^ACTIONS_.+$ ]]; then printf -- '-e %s ' "$key"; fi; done)
         # Gather list of environment variable names with values starting with INPUT_
         INPUT_ENV_VARS=$(env | while IFS= read -r line; do key=${line%%=*}; val=${line#*=}; if [[ "$key" =~ ^INPUT_.+$ ]]; then printf -- '-e %s=%s ' "$key" "$val"; fi; done)
-        PASSTHROUGH_ENV_VARS="${GITHUB_ENV_VARS}${INPUT_ENV_VARS}"
+        PASSTHROUGH_ENV_VARS="${GITHUB_ENV_VARS}${ACTIONS_ENV_VARS}${INPUT_ENV_VARS}"
 
         echo "registry=${DOCKER_REGISTRY}" >> $GITHUB_OUTPUT
         echo "image_url=${DOCKER_IMAGE_URL}" >> $GITHUB_OUTPUT
