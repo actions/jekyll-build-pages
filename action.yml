@@ -46,18 +46,6 @@ runs:
           echo status=$GHCR_STATUS >> $GITHUB_OUTPUT
         fi
 
-    - name: Dump env
-      shell: sh
-      run: |
-        env | sort
-
-    - name: Dump env with override
-      shell: sh
-      env:
-        GITHUB_ACTION_REPOSITORY: 'actions/jekyll-build-pages'
-      run: |
-        env | sort
-
     - name: Create reusable values
       id: docker
       shell: bash
