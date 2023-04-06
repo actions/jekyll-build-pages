@@ -66,12 +66,12 @@ runs:
         INPUT_VERBOSE: ${{ inputs.verbose }}
         INPUT_TOKEN: ${{ inputs.token }}
       run: |
-        CLEAN_TAG_NAME=$(echo "$TAG_NAME" | sed 's/[^a-zA-Z0-9._-].*$//g')
-        DOCKER_IMAGE_URL="$DOCKER_REGISTRY/$GITHUB_ACTION_REPOSITORY:$CLEAN_TAG_NAME"
+        CLEAN_TAG_NAME=$(echo "${TAG_NAME}" | sed 's/[^a-zA-Z0-9._-].*$//g')
+        DOCKER_IMAGE_URL="${DOCKER_REGISTRY}/${GITHUB_ACTION_REPOSITORY}:${CLEAN_TAG_NAME}"
 
         # Modeled after: https://github.com/actions/runner/blob/1ceb1a67f270537fe80da23445fa78bfb97503ea/src/Runner.Worker/Container/ContainerInfo.cs#L37
         # example: ghcrioactionsjekyllbuildpagesv107_7ca21f
-        DOCKER_CONTAINER_BASENAME=$(echo "$DOCKER_IMAGE_URL" | sed 's/[^a-zA-Z0-9]//g')
+        DOCKER_CONTAINER_BASENAME=$(echo "${DOCKER_IMAGE_URL}" | sed 's/[^a-zA-Z0-9]//g')
         NEW_GUID=$(uuidgen)
         DOCKER_CONTAINER_NAME="${DOCKER_CONTAINER_BASENAME}_${NEW_GUID:0:6}"
 
@@ -80,8 +80,8 @@ runs:
         # However, here, we're generating a SHA from the workflow run information
         # instead of trying to figure out the equivalent directory path
         LABEL_BASE="${GITHUB_RUN_ID}/${GITHUB_RUN_NUMBER}/${GITHUB_JOB}"
-        LABEL_SHA=$(echo $LABEL_BASE | openssl dgst -sha256)
-        DOCKER_CONTAINER_LABEL=${LABEL_SHA:0:6}
+        LABEL_SHA=$(echo "${LABEL_BASE}" | openssl dgst -sha256)
+        DOCKER_CONTAINER_LABEL="${LABEL_SHA:0:6}""
 
         # Craft an expected image name in case we need to do the local build
         DOCKER_IMAGE_NAME=$DOCKER_IMAGE_URL
@@ -91,17 +91,17 @@ runs:
 
         # actions/runner source: https://github.com/actions/runner/blob/0484afeec71b612022e35ba80e5fe98a99cd0be8/src/Runner.Worker/Container/DockerCommandManager.cs#L130-L140
         # Gather list of environment variable names starting with GITHUB_ or ACTIONS_
-        GITHUB_ENV_VARS=$(env | while IFS= read -r line; do key=${line%%=*}; if [[ "$key" =~ ^(GITHUB\|ACTIONS)_.+$ ]]; then printf "-e $key "; fi; done)
+        GITHUB_ENV_VARS=$(env | while IFS= read -r line; do key=${line%%=*}; if [[ "$key" =~ ^(GITHUB\|ACTIONS)_.+$ ]]; then printf '-e %s ' $key; fi; done)
         # Gather list of environment variable names with values starting with INPUT_
-        INPUT_ENV_VARS=$(env | while IFS= read -r line; do key=${line%%=*}; val=${line#*=}; if [[ "$key" =~ ^INPUT_.+$ ]]; then printf "-e $key=$val "; fi; done)
+        INPUT_ENV_VARS=$(env | while IFS= read -r line; do key=${line%%=*}; val=${line#*=}; if [[ "$key" =~ ^INPUT_.+$ ]]; then printf '-e %s=%s ' $key $val; fi; done)
         PASSTHROUGH_ENV_VARS="${GITHUB_ENV_VARS}${INPUT_ENV_VARS}"
 
-        echo "registry=$DOCKER_REGISTRY" >> $GITHUB_OUTPUT
-        echo "image_url=$DOCKER_IMAGE_URL" >> $GITHUB_OUTPUT
-        echo "image_name=$DOCKER_IMAGE_NAME" >> $GITHUB_OUTPUT
-        echo "container_name=$DOCKER_CONTAINER_NAME" >> $GITHUB_OUTPUT
-        echo "container_label=$DOCKER_CONTAINER_LABEL" >> $GITHUB_OUTPUT
-        echo "env_expansion=$PASSTHROUGH_ENV_VARS" >> $GITHUB_OUTPUT
+        echo "registry=${DOCKER_REGISTRY}" >> $GITHUB_OUTPUT
+        echo "image_url=${DOCKER_IMAGE_URL}" >> $GITHUB_OUTPUT
+        echo "image_name=${DOCKER_IMAGE_NAME}" >> $GITHUB_OUTPUT
+        echo "container_name=${DOCKER_CONTAINER_NAME}" >> $GITHUB_OUTPUT
+        echo "container_label=${DOCKER_CONTAINER_LABEL}" >> $GITHUB_OUTPUT
+        echo "env_expansion=${PASSTHROUGH_ENV_VARS}" >> $GITHUB_OUTPUT
 
     - if: ${{ steps.ghcr.outputs.status == 'operational' }}
       name: Login to GHCR
