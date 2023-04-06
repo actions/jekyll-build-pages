@@ -46,14 +46,6 @@ runs:
           echo status=$GHCR_STATUS >> $GITHUB_OUTPUT
         fi
 
-    - name: Debug
-      shell: bash
-      run: |
-        LABEL_BASE="${GITHUB_RUN_ID}/${GITHUB_RUN_NUMBER}/${GITHUB_JOB}"
-        echo "LABEL_BASE=${LABEL_BASE}"
-        LABEL_SHA=$(echo "${LABEL_BASE}" | shasum -a 256 | awk '{print $1}')
-        echo "LABEL_SHA=${LABEL_SHA}"
-
     - name: Create reusable values
       id: docker
       shell: bash
@@ -86,7 +78,7 @@ runs:
         # However, here, we're generating a SHA from the workflow run information
         # instead of trying to figure out the equivalent directory path
         LABEL_BASE="${GITHUB_RUN_ID}/${GITHUB_RUN_NUMBER}/${GITHUB_JOB}"
-        LABEL_SHA=$(echo "${LABEL_BASE}" | openssl dgst -sha256)
+        LABEL_SHA=$(echo "${LABEL_BASE}" | shasum -a 256 | awk '{print $1}')
         DOCKER_CONTAINER_LABEL="${LABEL_SHA:0:6}"
 
         # Craft an expected image name in case we need to do the local build
