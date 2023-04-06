@@ -46,6 +46,14 @@ runs:
           echo status=$GHCR_STATUS >> $GITHUB_OUTPUT
         fi
 
+    - name: Debug
+      shell: bash
+      run: |
+        LABEL_BASE="${GITHUB_RUN_ID}/${GITHUB_RUN_NUMBER}/${GITHUB_JOB}"
+        echo "LABEL_BASE=${LABEL_BASE}"
+        LABEL_SHA=$(echo "${LABEL_BASE}" | openssl dgst -sha256)
+        echo "LABEL_SHA=${LABEL_SHA}"
+
     - name: Create reusable values
       id: docker
       shell: bash
