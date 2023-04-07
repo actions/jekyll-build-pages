@@ -40,6 +40,9 @@ runs:
         GITHUB_ACTION_REPOSITORY_EXP: ${{ github.action_repository }}
         GITHUB_ACTION_PATH_EXP: ${{ github.action_path }}
         GITHUB_ACTION_EXP: ${{ github.action }}
+        # Manual overrides
+        GITHUB_ACTION_REF: ${{ github.action_ref }}
+        GITHUB_ACTION_REPOSITORY: ${{ github.action_repository }}
       run: |
         echo "github.action_ref = ${{ github.action_ref }}"
         echo "GITHUB_ACTION_REF_EXP = $GITHUB_ACTION_REF_EXP"
