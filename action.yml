@@ -46,27 +46,24 @@ runs:
         echo ""
         echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
         if [ -d "$GITHUB_WORKSPACE" ]; then
-          pushd $GITHUB_WORKSPACE
+          cd $GITHUB_WORKSPACE
           ls -al
-          popd
         else
           echo "GITHUB_WORKSPACE is not a directory"
         fi
         echo ""
         echo "RUNNER_WORKSPACE = $RUNNER_WORKSPACE"
         if [ -d "$RUNNER_WORKSPACE" ]; then
-          pushd $RUNNER_WORKSPACE
+          cd $RUNNER_WORKSPACE
           ls -al
-          popd
         else
           echo "RUNNER_WORKSPACE is not a directory"
         fi
         echo ""
         echo "RUNNER_TEMP = $RUNNER_TEMP"
         if [ -d "$RUNNER_TEMP" ]; then
-          pushd $RUNNER_TEMP
+          cd $RUNNER_TEMP
           ls -al
-          popd
         else
           echo "RUNNER_TEMP is not a directory"
         fi
