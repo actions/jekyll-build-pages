@@ -33,41 +33,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Dump env
-      shell: sh
-      run: |
-        env | sort
-
-    - name: Dump directory info
-      shell: sh
-      run: |
-        echo "pwd = $(pwd)"
-        ls -al
-        echo ""
-        echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
-        if [ -d "$GITHUB_WORKSPACE" ]; then
-          cd $GITHUB_WORKSPACE
-          ls -al
-        else
-          echo "GITHUB_WORKSPACE is not a directory"
-        fi
-        echo ""
-        echo "RUNNER_WORKSPACE = $RUNNER_WORKSPACE"
-        if [ -d "$RUNNER_WORKSPACE" ]; then
-          cd $RUNNER_WORKSPACE
-          ls -al
-        else
-          echo "RUNNER_WORKSPACE is not a directory"
-        fi
-        echo ""
-        echo "RUNNER_TEMP = $RUNNER_TEMP"
-        if [ -d "$RUNNER_TEMP" ]; then
-          cd $RUNNER_TEMP
-          ls -al
-        else
-          echo "RUNNER_TEMP is not a directory"
-        fi
-
     - name: Check GHCR status
       id: ghcr
       shell: sh
