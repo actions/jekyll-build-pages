@@ -33,6 +33,17 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Compare important env vars
+      shell: sh
+      env:
+        GITHUB_ACTION_PATH_EXP: ${{ github.action_path }}
+        GITHUB_ACTION_REPOSITORY_EXP: ${{ github.action_repository }}
+        GITHUB_WORKSPACE_EXP: ${{ github.workspace }}
+        RUNNER_WORKSPACE_EXP: ${{ runner.workspace }}
+        RUNNER_TEMP_EXP: ${{ runner.temp }}
+      run: |
+        env | grep -E '^(GITHUB_|ACTIONS_|INPUT_)' | sort
+
     - name: Check GHCR status
       id: ghcr
       shell: sh
