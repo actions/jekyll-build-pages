@@ -132,6 +132,7 @@ runs:
         # Issue: https://github.com/actions/runner/issues/716
         # Pending PR: https://github.com/actions/runner/pull/2517
         cd $GITHUB_ACTION_PATH
+        # NOTE: This will rely on DockerHub to pull the ruby-slim image
         docker build -t $DOCKER_IMAGE_NAME -f Dockerfile .
 
     - name: Run task in Docker container
