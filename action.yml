@@ -36,15 +36,17 @@ runs:
     - name: Compare important env vars
       shell: sh
       env:
-        GITHUB_ACTION_EXP: ${{ github.action }}
-        GITHUB_ACTION_PATH_EXP: ${{ github.action_path }}
         GITHUB_ACTION_REF_EXP: ${{ github.action_ref }}
+        GITHUB_ACTION_REF: ${{ github.action_ref }}
         GITHUB_ACTION_REPOSITORY_EXP: ${{ github.action_repository }}
-        GITHUB_WORKSPACE_EXP: ${{ github.workspace }}
-        RUNNER_WORKSPACE_EXP: ${{ runner.workspace }}
-        RUNNER_TEMP_EXP: ${{ runner.temp }}
+        GITHUB_ACTION_REPOSITORY: ${{ github.action_repository }}
       run: |
-        env | grep -E '^(GITHUB_|ACTIONS_|RUNNER_)' | sort
+        echo "github.action_ref = ${{ github.action_ref }}"
+        echo "GITHUB_ACTION_REF_EXP = $GITHUB_ACTION_REF_EXP"
+        echo "GITHUB_ACTION_REF = $GITHUB_ACTION_REF"
+        echo "github.action_repository = ${{ github.action_repository }}"
+        echo "GITHUB_ACTION_REPOSITORY_EXP = $GITHUB_ACTION_REPOSITORY_EXP"
+        echo "GITHUB_ACTION_REPOSITORY = $GITHUB_ACTION_REPOSITORY"
 
     - name: Check GHCR status
       id: ghcr
