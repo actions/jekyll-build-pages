@@ -33,6 +33,11 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Dump env
+      shell: sh
+      run: |
+        env | sort
+
     - name: Check GHCR status
       id: ghcr
       shell: sh
