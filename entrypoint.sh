@@ -38,11 +38,5 @@ else
   FUTURE=''
 fi
 
-echo PAGES_GEM_HOME = $PAGES_GEM_HOME
-echo GITHUB_PAGES_BIN = $GITHUB_PAGES_BIN
-echo GITHUB_WORKSPACE = $GITHUB_WORKSPACE
-echo PWD = $(pwd)
-find $(pwd) -print | grep -v '/.git/' | sort
-
 cd "$PAGES_GEM_HOME"
 $GITHUB_PAGES_BIN build "$VERBOSE" "$FUTURE" --source "$SOURCE_DIRECTORY" --destination "$DESTINATION_DIRECTORY"
