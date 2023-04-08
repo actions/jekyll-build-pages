@@ -173,8 +173,9 @@ runs:
           --rm \
           ${{ steps.docker.outputs.env_expansion }} \
           -e HOME \
-          -e GITHUB_ACTIONS=true \
           -e CI=true \
+          -e GITHUB_ACTIONS=true \
+          -e GITHUB_WORKSPACE="/github/workspace" \
           -v "/var/run/docker.sock":"/var/run/docker.sock" \
           -v "$RUNNER_TEMP/_github_home":"/github/home" \
           -v "$RUNNER_TEMP/_github_workflow":"/github/workflow" \
