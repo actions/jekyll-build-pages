@@ -26,10 +26,6 @@ inputs:
     description: 'GitHub token'
     required: true
     default: ${{ github.token }}
-  image_version:
-    description: 'Version tag of the actions/jekyll-build-pages Docker image to use.'
-    required: true
-    default: v1.0.7
 outputs:
   image_pulled_from_ghcr:
     description: 'Was the Docker image pulled from GHCR?'
@@ -47,19 +43,11 @@ runs:
       id: action_ref
       shell: bash
       env:
+        FALLBACK_TAG: v1.0.7
         # Infer Docker container image to use, if possible
         # Do not set this as `GITHUB_ACTION_REF` due to a bug in the runner!
         GITHUB_ACTION_REF_COMMITISH: ${{ github.action_ref }}
       run: |
-        # Manually change directory given bug with github.action_path reference
-        # Issue: https://github.com/actions/runner/issues/716
-        # Pending PR: https://github.com/actions/runner/pull/2517
-        cd $GITHUB_ACTION_PATH
-
-        git remote -v
-        git branch -a
-        git tag -l
-
         CLEAN_COMMITISH=$(echo "${GITHUB_ACTION_REF_COMMITISH}" | sed 's/[^a-zA-Z0-9._-]*$//g')
         echo "commitish=${CLEAN_COMMITISH}" >> $GITHUB_OUTPUT
 
@@ -68,34 +56,15 @@ runs:
 
         # If the commitish is a version tag, check if the tag actually exists
         if [[ $? -eq 0 ]]; then
-          REMOTE_TAG_LINE=$(git ls-remote --tags --refs --quiet origin "${VERSION_TAG}" | grep -E "\s+refs/tags/${VERSION_TAG}$")
-          if [[ $? -ne 0 ]]; then
-            echo "Tag ${VERSION_TAG} does not exist in the action's remote repository."
-            exit 1
-          fi
-
+          echo "Using tag '${VERSION_TAG}' for commitish '${CLEAN_COMMITISH}'"
           echo "tag=${VERSION_TAG}" >> $GITHUB_OUTPUT
-          exit 0
+        elif [[ "${CLEAN_COMMITISH}" == "main" ]]; then
+          echo "Using tag 'latest' for commitish '${CLEAN_COMMITISH}'"
+          echo "tag=latest" >> $GITHUB_OUTPUT
+        else
+          echo "Using fallback tag '${FALLBACK_TAG}' for commitish '${CLEAN_COMMITISH}'"
+          echo "tag=${FALLBACK_TAG}" >> $GITHUB_OUTPUT
         fi
-
-        # Check for format of a commit SHA
-        COMMIT_SHA=$(echo "${CLEAN_COMMITISH}" | grep -E '^[0-9a-fA-F]{40}$')
-        # If the commitish is a commit SHA, check if there is a corresponding tag
-        if [[ $? -eq 0 ]]; then
-          REMOTE_TAG_LINE=$(git ls-remote --tags --refs --quiet origin | grep -E "^${COMMIT_SHA}\s+refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$")
-          if [[ $? -ne 0 ]]; then
-            echo "Commit ${COMMIT_SHA} does not have a corresponding tag in the action's remote repository."
-            exit 1
-          fi
-
-          VERSION_TAG=$(echo "${REMOTE_TAG_LINE}" | awk '{print $2}' | sed 's/refs\/tags\///g')
-          echo "tag=${VERSION_TAG}" >> $GITHUB_OUTPUT
-          exit 0
-        fi
-
-        # Do not provide a default value for the tag
-        echo "No tag found for GITHUB_ACTION_REF ${CLEAN_COMMITISH}"
-        exit 1
 
     - name: Compare important env vars
       shell: sh

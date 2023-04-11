@@ -22,20 +22,20 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Grep action.yaml content
+      - name: Grep action.yml content
         id: grep-image-content
         run: |
-          image=$(grep -E "jekyll-build-pages.*\'" action.yml)
-          echo "image=$image" >> $GITHUB_OUTPUT
+          IMAGE_LINE=$(grep -E "^\s+FALLBACK_TAG:\s+(.*)$" action.yml)
+          echo "image_line=$IMAGE_LINE" >> $GITHUB_OUTPUT
       - uses: actions-ecosystem/action-regex-match@v2
         id: regex-match
         with:
-          text: ${{ steps.grep-image-content.outputs.image }}
-          regex: "jekyll-build-pages:(.*)'"
+          text: ${{ steps.grep-image-content.outputs.image_line }}
+          regex: '^\s+FALLBACK_TAG:\s+(.*)$'
       - name: Version match
         run: |
           if [ "${{ steps.regex-match.outputs.group1 }}" != "${{ env.TAG_NAME }}" ]; then
-            echo "version mismatch. action.yaml with version ${{ steps.regex-match.outputs.group1 }} Tag version ${{ env.TAG_NAME }}";
+            echo "Version mismatch! action.yml with FALLBACK_TAG version ${{ steps.regex-match.outputs.group1 }} vs. Tag version ${{ env.TAG_NAME }}";
             exit 1
           fi
       - name: Verify image published
