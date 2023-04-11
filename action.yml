@@ -56,6 +56,10 @@ runs:
         # Pending PR: https://github.com/actions/runner/pull/2517
         cd $GITHUB_ACTION_PATH
 
+        git remote -v
+        git branch -a
+        git tag -l
+
         CLEAN_COMMITISH=$(echo "${GITHUB_ACTION_REF_COMMITISH}" | sed 's/[^a-zA-Z0-9._-]*$//g')
         echo "commitish=${CLEAN_COMMITISH}" >> $GITHUB_OUTPUT
 
