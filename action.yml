@@ -60,8 +60,8 @@ runs:
           echo "tag=latest" >> $GITHUB_OUTPUT
         # Check for format of either major version tag ("v1") or a standard SemVer tag ("v1.0.7")
         elif [[ "${CLEAN_COMMITISH}" =~ ^v[0-9]+(\.[0-9]+\.[0-9]+)?$ ]]; then
-          echo "Using Docker tag '${VERSION_TAG}' for git version tag '${CLEAN_COMMITISH}'"
-          echo "tag=${VERSION_TAG}" >> $GITHUB_OUTPUT
+          echo "Using Docker tag '${CLEAN_COMMITISH}' for git version tag '${CLEAN_COMMITISH}'"
+          echo "tag=${CLEAN_COMMITISH}" >> $GITHUB_OUTPUT
         # Check for a likely commit SHA
         elif [[ "${CLEAN_COMMITISH}" =~ ^[0-9a-fA-F]\{40\}$ ]]; then
           echo "Using Docker tag 'latest' for git default branch '${CLEAN_COMMITISH}'"
