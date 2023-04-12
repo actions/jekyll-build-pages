@@ -48,26 +48,21 @@ runs:
         # Do not set this as `GITHUB_ACTION_REF` due to a bug in the runner!
         GITHUB_ACTION_REF_COMMITISH: ${{ github.action_ref }}
       run: |
-        set -eE -o functrace
-        failure() {
-          local lineno=$1
-          local msg=$2
-          echo "Failed at $lineno: $msg"
-        }
-        trap 'failure ${LINENO} "$BASH_COMMAND"' ERR
-
         CLEAN_COMMITISH=$(echo "${GITHUB_ACTION_REF_COMMITISH}" | sed 's/[^a-zA-Z0-9._-]*$//g')
         echo "commitish=${CLEAN_COMMITISH}" >> $GITHUB_OUTPUT
 
+        echo "GITHUB_ACTION_REF = ${GITHUB_ACTION_REF_COMMITISH}"
+        echo "CLEAN_COMMITISH = ${CLEAN_COMMITISH}"
+
         # Check for format of either major version tag ("v1") or a standard SemVer tag ("v1.0.7")
         if [[ "${CLEAN_COMMITISH}" =~ ^v[0-9]+(\.[0-9]+\.[0-9]+)?$ ]]; then
-          echo "Using tag '${VERSION_TAG}' for commitish '${CLEAN_COMMITISH}'"
+          echo "Using Docker tag '${VERSION_TAG}' for git version tag '${CLEAN_COMMITISH}'"
           echo "tag=${VERSION_TAG}" >> $GITHUB_OUTPUT
         elif [[ "${CLEAN_COMMITISH}" == "main" ]]; then
-          echo "Using tag 'latest' for commitish '${CLEAN_COMMITISH}'"
+          echo "Using Docker tag 'latest' for git default branch '${CLEAN_COMMITISH}'"
           echo "tag=latest" >> $GITHUB_OUTPUT
         else
-          echo "Using fallback tag '${FALLBACK_TAG}' for commitish '${CLEAN_COMMITISH}'"
+          echo "Using fallback tag '${FALLBACK_TAG}' for other branch or commit '${CLEAN_COMMITISH}'"
           echo "tag=${FALLBACK_TAG}" >> $GITHUB_OUTPUT
         fi
 
