@@ -62,12 +62,8 @@ runs:
         elif [[ "${CLEAN_COMMITISH}" =~ ^v[0-9]+(\.[0-9]+\.[0-9]+)?$ ]]; then
           echo "Using Docker tag '${CLEAN_COMMITISH}' for git version tag '${CLEAN_COMMITISH}'"
           echo "tag=${CLEAN_COMMITISH}" >> $GITHUB_OUTPUT
-        # Check for a likely commit SHA
-        elif [[ "${CLEAN_COMMITISH}" =~ ^[0-9a-fA-F]\{40\}$ ]]; then
-          echo "Using Docker tag 'latest' for git default branch '${CLEAN_COMMITISH}'"
-          echo "tag=latest" >> $GITHUB_OUTPUT
         else
-          echo "Using fallback tag '${FALLBACK_TAG}' for other branch or commit '${CLEAN_COMMITISH}'"
+          echo "Using fallback tag '${FALLBACK_TAG}' for other branch or commit SHA '${CLEAN_COMMITISH}'"
           echo "tag=${FALLBACK_TAG}" >> $GITHUB_OUTPUT
         fi
 
