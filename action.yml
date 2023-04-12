@@ -54,11 +54,16 @@ runs:
         echo "GITHUB_ACTION_REF = ${GITHUB_ACTION_REF_COMMITISH}"
         echo "CLEAN_COMMITISH = ${CLEAN_COMMITISH}"
 
+        # Check for the default branch
+        if [[ "${CLEAN_COMMITISH}" == "main" ]]; then
+          echo "Using Docker tag 'latest' for git default branch '${CLEAN_COMMITISH}'"
+          echo "tag=latest" >> $GITHUB_OUTPUT
         # Check for format of either major version tag ("v1") or a standard SemVer tag ("v1.0.7")
-        if [[ "${CLEAN_COMMITISH}" =~ ^v[0-9]+(\.[0-9]+\.[0-9]+)?$ ]]; then
+        elif [[ "${CLEAN_COMMITISH}" =~ ^v[0-9]+(\.[0-9]+\.[0-9]+)?$ ]]; then
           echo "Using Docker tag '${VERSION_TAG}' for git version tag '${CLEAN_COMMITISH}'"
           echo "tag=${VERSION_TAG}" >> $GITHUB_OUTPUT
-        elif [[ "${CLEAN_COMMITISH}" == "main" ]]; then
+        # Check for a likely commit SHA
+        elif [[ "${CLEAN_COMMITISH}" =~ ^[0-9a-fA-F]\{40\}$ ]]; then
           echo "Using Docker tag 'latest' for git default branch '${CLEAN_COMMITISH}'"
           echo "tag=latest" >> $GITHUB_OUTPUT
         else
