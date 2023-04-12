@@ -49,6 +49,8 @@ runs:
         GITHUB_ACTION_REF_COMMITISH: ${{ github.action_ref }}
       run: |
         CLEAN_COMMITISH=$(echo "${GITHUB_ACTION_REF_COMMITISH}" | sed 's/[^a-zA-Z0-9._-]*$//g')
+
+        echo "ref=${GITHUB_ACTION_REF_COMMITISH}" >> $GITHUB_OUTPUT
         echo "commitish=${CLEAN_COMMITISH}" >> $GITHUB_OUTPUT
 
         echo "GITHUB_ACTION_REF = ${GITHUB_ACTION_REF_COMMITISH}"
@@ -57,14 +59,14 @@ runs:
         # Check for the default branch
         if [[ "${CLEAN_COMMITISH}" == "main" ]]; then
           echo "Using Docker tag 'latest' for git default branch '${CLEAN_COMMITISH}'"
-          echo "tag=latest" >> $GITHUB_OUTPUT
+          echo "docker_tag=latest" >> $GITHUB_OUTPUT
         # Check for format of either major version tag ("v1") or a standard SemVer tag ("v1.0.7")
         elif [[ "${CLEAN_COMMITISH}" =~ ^v[0-9]+(\.[0-9]+\.[0-9]+)?$ ]]; then
           echo "Using Docker tag '${CLEAN_COMMITISH}' for git version tag '${CLEAN_COMMITISH}'"
-          echo "tag=${CLEAN_COMMITISH}" >> $GITHUB_OUTPUT
+          echo "docker_tag=${CLEAN_COMMITISH}" >> $GITHUB_OUTPUT
         else
           echo "Using fallback tag '${FALLBACK_TAG}' for other branch or commit SHA '${CLEAN_COMMITISH}'"
-          echo "tag=${FALLBACK_TAG}" >> $GITHUB_OUTPUT
+          echo "docker_tag=${FALLBACK_TAG}" >> $GITHUB_OUTPUT
         fi
 
     - name: Compare important env vars
