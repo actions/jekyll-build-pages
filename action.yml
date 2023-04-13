@@ -206,9 +206,9 @@ runs:
       id: finale
       shell: sh
       env:
-        GHCR_UP: ${{ steps.ghcr.outputs.up }}
+        GHCR_UP: ${{ steps.ghcr.outputs.up == 'true' }}
         DOCKER_PULLED_FROM_GHCR: ${{ steps.docker.outputs.building != 'true' }}
-        DOCKER_BUILT_LOCALLY: ${{ steps.docker.outputs.building }}
+        DOCKER_BUILT_LOCALLY: ${{ steps.docker.outputs.building == 'true' }}
         DOCKER_IMAGE_NAME: ${{ steps.docker.outputs.image_name }}
       run: |
         # Promised outputs
@@ -219,8 +219,8 @@ runs:
 
         # Debugging outputs
         # id: action_meta
-        #echo "github_action_ref=" >> $GITHUB_OUTPUT
-        #echo "github_action_commitish=" >> $GITHUB_OUTPUT
+        #echo "ref=" >> $GITHUB_OUTPUT
+        #echo "commitish=" >> $GITHUB_OUTPUT
         #echo "docker_tag_fallback=" >> $GITHUB_OUTPUT
         #echo "docker_registry=" >> $GITHUB_OUTPUT
         #echo "docker_tag=" >> $GITHUB_OUTPUT
