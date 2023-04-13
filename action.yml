@@ -51,7 +51,7 @@ runs:
         # Do not set this as `GITHUB_ACTION_REF` due to a bug in the runner!
         GITHUB_ACTION_REF_COMMITISH: ${{ github.action_ref }}
       run: |
-        CLEAN_COMMITISH=$(echo "${GITHUB_ACTION_REF_COMMITISH}" | sed 's/[^a-zA-Z0-9._-]*$//g')
+        CLEAN_COMMITISH=$(echo "${GITHUB_ACTION_REF_COMMITISH}" | sed 's/[^a-zA-Z0-9._-]//g')
 
         # Check for the default branch
         if [[ "${CLEAN_COMMITISH}" == "main" ]]; then
