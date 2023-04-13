@@ -27,96 +27,87 @@ inputs:
     required: true
     default: ${{ github.token }}
 outputs:
+  ghcr_up:
+    description: 'Was GHCR supposedly available?'
+    value: ${{ steps.finale.outputs.ghcr_up }}
   image_pulled_from_ghcr:
     description: 'Was the Docker image pulled from GHCR?'
-    value: ${{ steps.docker.outputs.image_url }}
+    value: ${{ steps.finale.outputs.image_pulled_from_ghcr }}
   image_built_locally:
     description: 'Was the Docker image built locally?'
-    value: ${{ steps.docker.outputs.image_name }}
+    value: ${{ steps.finale.outputs.image_built_locally }}
   image_ref:
-    description: 'The published version tag or git commit SHA for the Docker image used.'
-    value: ${{ steps.docker.outputs.image_ref }}
+    description: 'The published Docker URL, git branch, or git commit SHA for the Docker image used.'
+    value: ${{ steps.finale.outputs.image_ref }}
 runs:
   using: composite
   steps:
-    - name: Calculate tag information
-      id: action_ref
+    - name: Calculate docker tag information
+      id: action_meta
       shell: bash
       env:
-        FALLBACK_TAG: v1.0.7
+        DOCKER_TAG_FALLBACK: v1.0.7
         # Infer Docker container image to use, if possible
         # Do not set this as `GITHUB_ACTION_REF` due to a bug in the runner!
         GITHUB_ACTION_REF_COMMITISH: ${{ github.action_ref }}
       run: |
         CLEAN_COMMITISH=$(echo "${GITHUB_ACTION_REF_COMMITISH}" | sed 's/[^a-zA-Z0-9._-]*$//g')
 
-        echo "ref=${GITHUB_ACTION_REF_COMMITISH}" >> $GITHUB_OUTPUT
-        echo "commitish=${CLEAN_COMMITISH}" >> $GITHUB_OUTPUT
-
-        echo "GITHUB_ACTION_REF = ${GITHUB_ACTION_REF_COMMITISH}"
-        echo "CLEAN_COMMITISH = ${CLEAN_COMMITISH}"
-
         # Check for the default branch
         if [[ "${CLEAN_COMMITISH}" == "main" ]]; then
-          echo "Using Docker tag 'latest' for git default branch '${CLEAN_COMMITISH}'"
-          echo "docker_tag=latest" >> $GITHUB_OUTPUT
+          DOCKER_TAG="latest"
+          echo "Using Docker tag '${DOCKER_TAG}' for git default branch '${CLEAN_COMMITISH}'"
         # Check for format of either major version tag ("v1") or a standard SemVer tag ("v1.0.7")
         elif [[ "${CLEAN_COMMITISH}" =~ ^v[0-9]+(\.[0-9]+\.[0-9]+)?$ ]]; then
-          echo "Using Docker tag '${CLEAN_COMMITISH}' for git version tag '${CLEAN_COMMITISH}'"
-          echo "docker_tag=${CLEAN_COMMITISH}" >> $GITHUB_OUTPUT
+          DOCKER_TAG="${CLEAN_COMMITISH}"
+          echo "Using Docker tag '${DOCKER_TAG}' for git version tag '${CLEAN_COMMITISH}'"
         else
-          echo "Using fallback tag '${FALLBACK_TAG}' for other branch or commit SHA '${CLEAN_COMMITISH}'"
-          echo "docker_tag=${FALLBACK_TAG}" >> $GITHUB_OUTPUT
+          DOCKER_TAG="${DOCKER_TAG_FALLBACK}"
+          echo "Using Docker tag fallback '${DOCKER_TAG}' for git non-default branch or commit SHA '${CLEAN_COMMITISH}'"
         fi
 
-    - name: Compare important env vars
-      shell: sh
-      env:
-        GITHUB_ACTION_REF_EXP: ${{ github.action_ref }}
-        GITHUB_ACTION_REPOSITORY_EXP: ${{ github.action_repository }}
-        GITHUB_ACTION_PATH_EXP: ${{ github.action_path }}
-        GITHUB_ACTION_EXP: ${{ github.action }}
-        # Manual overrides
-        GITHUB_ACTION_REF: ${{ github.action_ref }}
-        GITHUB_ACTION_REPOSITORY: ${{ github.action_repository }}
-      run: |
-        echo "github.action_ref = ${{ github.action_ref }}"
-        echo "GITHUB_ACTION_REF_EXP = $GITHUB_ACTION_REF_EXP"
-        echo "GITHUB_ACTION_REF = $GITHUB_ACTION_REF"
-        echo "github.action_repository = ${{ github.action_repository }}"
-        echo "GITHUB_ACTION_REPOSITORY_EXP = $GITHUB_ACTION_REPOSITORY_EXP"
-        echo "GITHUB_ACTION_REPOSITORY = $GITHUB_ACTION_REPOSITORY"
-        echo "github.action_path = ${{ github.action_path }}"
-        echo "GITHUB_ACTION_PATH_EXP = $GITHUB_ACTION_PATH_EXP"
-        echo "GITHUB_ACTION_PATH = $GITHUB_ACTION_PATH"
-        echo "github.action = ${{ github.action }}"
-        echo "GITHUB_ACTION_EXP = $GITHUB_ACTION_EXP"
-        echo "GITHUB_ACTION = $GITHUB_ACTION"
+        echo "ref=${GITHUB_ACTION_REF_COMMITISH}" >> $GITHUB_OUTPUT
+        echo "commitish=${CLEAN_COMMITISH}" >> $GITHUB_OUTPUT
+        echo "docker_tag_fallback=${DOCKER_TAG_FALLBACK}" >> $GITHUB_OUTPUT
+        echo "docker_tag=${DOCKER_TAG}" >> $GITHUB_OUTPUT
+        echo "docker_registry=ghcr.io" >> $GITHUB_OUTPUT
 
     - name: Check GHCR status
       id: ghcr
-      shell: sh
-      env:
-        GHCR_STATUS: down
-      # using an internal endpoint would be better than status page
-      # but this is an acceptable starting point
+      shell: bash
       run: |
-        if [ -z "$GHCR_STATUS" ]; then
-          packagesStatus=$(curl -LSs https://www.githubstatus.com/api/v2/components.json | jq -r '.components[] | select(.name == "Packages") | .status')
-          echo status=$packagesStatus >> $GITHUB_OUTPUT
+        # Using an internal endpoint would be better than the status page
+        # but this is an acceptable starting point
+        if [ -z "${GHCR_STATUS}" ]; then
+          PACKAGES_STATUS=$(curl -LSs https://www.githubstatus.com/api/v2/components.json | jq -r '.components[] | select(.name == "Packages") | .status')
         else
-          echo status=$GHCR_STATUS >> $GITHUB_OUTPUT
+          # Allow overriding behavior via environment variable GHCR_STATUS
+          PACKAGES_STATUS="${GHCR_STATUS}"
         fi
+        [[ "${PACKAGES_STATUS}" == "operational" ]] && GHCR_UP=true || GHCR_UP=false
+
+        echo "status=${PACKAGES_STATUS}" >> $GITHUB_OUTPUT
+        echo "up=${GHCR_UP}" >> $GITHUB_OUTPUT
+
+    - if: ${{ steps.ghcr.outputs.up == 'true' }}
+      name: Login to GHCR
+      id: login
+      shell: sh
+      continue-on-error: true
+      env:
+        DOCKER_REGISTRY: ${{ steps.action_meta.outputs.docker_registry }}
+        GITHUB_TOKEN: ${{ inputs.token }}
+      run: |
+        echo $GITHUB_TOKEN | docker login $DOCKER_REGISTRY -u $GITHUB_ACTOR --password-stdin
 
     - name: Create reusable values
       id: docker
       shell: bash
       env:
-        DOCKER_REGISTRY: ghcr.io
-        # Docker container does NOT need INPUT_IMAGE_NAME so let's divert with its name
-        TAG_NAME: ${{ inputs.image_version }}
+        DOCKER_REGISTRY: ${{ steps.action_meta.outputs.docker_registry }}
+        DOCKER_TAG: ${{ steps.action_meta.outputs.docker_tag }}
         # Do we need to manually build the Docker image?
-        MUST_BUILD: ${{ steps.ghcr.outputs.status != 'operational' }}
+        MUST_BUILD: ${{ steps.ghcr.outputs.up != 'true' || steps.login.outcome != 'success' }}
         # "If the action is written using a composite, then it will not automatically get INPUT_<VARIABLE_NAME>."
         # Ergo, these must be manually created here using `inputs` references.
         INPUT_SOURCE: ${{ inputs.source }}
@@ -126,8 +117,7 @@ runs:
         INPUT_VERBOSE: ${{ inputs.verbose }}
         INPUT_TOKEN: ${{ inputs.token }}
       run: |
-        CLEAN_TAG_NAME=$(echo "${TAG_NAME}" | sed 's/[^a-zA-Z0-9._-].*$//g')
-        DOCKER_IMAGE_URL="${DOCKER_REGISTRY}/actions/jekyll-build-pages:${CLEAN_TAG_NAME}"
+        DOCKER_IMAGE_URL="${DOCKER_REGISTRY}/actions/jekyll-build-pages:${DOCKER_TAG}"
 
         # Modeled after: https://github.com/actions/runner/blob/1ceb1a67f270537fe80da23445fa78bfb97503ea/src/Runner.Worker/Container/ContainerInfo.cs#L37
         # example: ghcrioactionsjekyllbuildpagesv107_7ca21f
@@ -159,22 +149,14 @@ runs:
         PASSTHROUGH_ENV_VARS="${GITHUB_ENV_VARS}${ACTIONS_ENV_VARS}${INPUT_ENV_VARS}"
 
         echo "registry=${DOCKER_REGISTRY}" >> $GITHUB_OUTPUT
+        echo "building=${MUST_BUILD}" >> $GITHUB_OUTPUT
         echo "image_url=${DOCKER_IMAGE_URL}" >> $GITHUB_OUTPUT
         echo "image_name=${DOCKER_IMAGE_NAME}" >> $GITHUB_OUTPUT
         echo "container_name=${DOCKER_CONTAINER_NAME}" >> $GITHUB_OUTPUT
         echo "container_label=${DOCKER_CONTAINER_LABEL}" >> $GITHUB_OUTPUT
         echo "env_expansion=${PASSTHROUGH_ENV_VARS}" >> $GITHUB_OUTPUT
 
-    - if: ${{ steps.ghcr.outputs.status == 'operational' }}
-      name: Login to GHCR
-      shell: sh
-      env:
-        DOCKER_REGISTRY: ${{ steps.docker.outputs.registry }}
-        GITHUB_TOKEN: ${{ inputs.token }}
-      run: |
-        echo $GITHUB_TOKEN | docker login $DOCKER_REGISTRY -u $GITHUB_ACTOR --password-stdin
-
-    - if: ${{ steps.ghcr.outputs.status == 'operational' }}
+    - if: ${{ steps.login.outcome == 'success' }}
       name: Pull prebuilt Docker image
       shell: sh
       env:
@@ -182,7 +164,7 @@ runs:
       run: |
         docker pull $DOCKER_IMAGE_URL
 
-    - if: ${{ steps.ghcr.outputs.status != 'operational' }}
+    - if: ${{ steps.login.outcome != 'success' }}
       name: Build local Docker image
       shell: sh
       env:
@@ -192,6 +174,7 @@ runs:
         # Issue: https://github.com/actions/runner/issues/716
         # Pending PR: https://github.com/actions/runner/pull/2517
         cd $GITHUB_ACTION_PATH
+
         # NOTE: This will rely on DockerHub to pull the ruby-slim image
         docker build -t $DOCKER_IMAGE_NAME -f Dockerfile .
 
@@ -218,3 +201,42 @@ runs:
           -v "$RUNNER_TEMP/_runner_file_commands":"/github/file_commands" \
           -v "$GITHUB_WORKSPACE":"/github/workspace" \
           $DOCKER_IMAGE_NAME
+
+    - name: Calculate final outputs
+      id: finale
+      shell: sh
+      env:
+        GHCR_UP: ${{ steps.ghcr.outputs.up }}
+        DOCKER_PULLED_FROM_GHCR: ${{ steps.docker.outputs.building != 'true' }}
+        DOCKER_BUILT_LOCALLY: ${{ steps.docker.outputs.building }}
+        DOCKER_IMAGE_NAME: ${{ steps.docker.outputs.image_name }}
+      run: |
+        # Promised outputs
+        echo "ghcr_up=$GHCR_UP" >> $GITHUB_OUTPUT
+        echo "image_pulled_from_ghcr=$DOCKER_PULLED_FROM_GHCR" >> $GITHUB_OUTPUT
+        echo "image_built_locally=$DOCKER_BUILT_LOCALLY" >> $GITHUB_OUTPUT
+        echo "image_ref=$DOCKER_IMAGE_NAME" >> $GITHUB_OUTPUT
+
+        # Debugging outputs
+        # id: action_meta
+        #echo "github_action_ref=" >> $GITHUB_OUTPUT
+        #echo "github_action_commitish=" >> $GITHUB_OUTPUT
+        #echo "docker_tag_fallback=" >> $GITHUB_OUTPUT
+        #echo "docker_registry=" >> $GITHUB_OUTPUT
+        #echo "docker_tag=" >> $GITHUB_OUTPUT
+
+        # id: ghcr
+        #echo "status=" >> $GITHUB_OUTPUT
+        #echo "up=" >> $GITHUB_OUTPUT
+
+        # id: login
+        # ${{ steps.login.outcome }} != 'success'
+
+        # id: docker
+        #echo "registry=" >> $GITHUB_OUTPUT
+        #echo "building=" >> $GITHUB_OUTPUT
+        #echo "image_url=" >> $GITHUB_OUTPUT
+        #echo "image_name=" >> $GITHUB_OUTPUT
+        #echo "container_name=" >> $GITHUB_OUTPUT
+        #echo "container_label=" >> $GITHUB_OUTPUT
+        #echo "env_expansion=" >> $GITHUB_OUTPUT

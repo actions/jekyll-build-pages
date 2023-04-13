@@ -25,17 +25,17 @@ jobs:
       - name: Grep action.yml content
         id: grep-image-content
         run: |
-          IMAGE_LINE=$(grep -E "^\s+FALLBACK_TAG:\s+(.*)$" action.yml)
+          IMAGE_LINE=$(grep -E "^\s+DOCKER_TAG_FALLBACK:\s+(.*)$" action.yml)
           echo "image_line=$IMAGE_LINE" >> $GITHUB_OUTPUT
       - uses: actions-ecosystem/action-regex-match@v2
         id: regex-match
         with:
           text: ${{ steps.grep-image-content.outputs.image_line }}
-          regex: '^\s+FALLBACK_TAG:\s+(.*)$'
+          regex: '^\s+DOCKER_TAG_FALLBACK:\s+(.*)$'
       - name: Version match
         run: |
           if [ "${{ steps.regex-match.outputs.group1 }}" != "${{ env.TAG_NAME }}" ]; then
-            echo "Version mismatch! action.yml with FALLBACK_TAG version ${{ steps.regex-match.outputs.group1 }} vs. Tag version ${{ env.TAG_NAME }}";
+            echo "Version mismatch! action.yml with DOCKER_TAG_FALLBACK version ${{ steps.regex-match.outputs.group1 }} vs. Tag version ${{ env.TAG_NAME }}";
             exit 1
           fi
       - name: Verify image published
