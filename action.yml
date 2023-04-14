@@ -175,7 +175,7 @@ runs:
       env:
         DOCKER_IMAGE_NAME: ${{ steps.docker.outputs.image_name }}
       run: |
-        # Manually change directory given bug with github.action_path reference
+        # Manually change directory to avoid bug with github.action_path reference
         # Issue: https://github.com/actions/runner/issues/716
         # Pending PR: https://github.com/actions/runner/pull/2517
         cd $GITHUB_ACTION_PATH
@@ -216,32 +216,7 @@ runs:
         DOCKER_BUILT_LOCALLY: ${{ steps.docker.outputs.building == 'true' }}
         DOCKER_IMAGE_NAME: ${{ steps.docker.outputs.image_name }}
       run: |
-        # Promised outputs
         echo "ghcr_up=$GHCR_UP" >> $GITHUB_OUTPUT
         echo "image_pulled_from_ghcr=$DOCKER_PULLED_FROM_GHCR" >> $GITHUB_OUTPUT
         echo "image_built_locally=$DOCKER_BUILT_LOCALLY" >> $GITHUB_OUTPUT
         echo "image_ref=$DOCKER_IMAGE_NAME" >> $GITHUB_OUTPUT
-
-        # Debugging outputs
-        # id: action_meta
-        #echo "ref=" >> $GITHUB_OUTPUT
-        #echo "commitish=" >> $GITHUB_OUTPUT
-        #echo "docker_tag_fallback=" >> $GITHUB_OUTPUT
-        #echo "docker_registry=" >> $GITHUB_OUTPUT
-        #echo "docker_tag=" >> $GITHUB_OUTPUT
-
-        # id: ghcr
-        #echo "status=" >> $GITHUB_OUTPUT
-        #echo "up=" >> $GITHUB_OUTPUT
-
-        # id: login
-        # ${{ steps.login.outcome }} != 'success'
-
-        # id: docker
-        #echo "registry=" >> $GITHUB_OUTPUT
-        #echo "building=" >> $GITHUB_OUTPUT
-        #echo "image_url=" >> $GITHUB_OUTPUT
-        #echo "image_name=" >> $GITHUB_OUTPUT
-        #echo "container_name=" >> $GITHUB_OUTPUT
-        #echo "container_label=" >> $GITHUB_OUTPUT
-        #echo "env_expansion=" >> $GITHUB_OUTPUT
