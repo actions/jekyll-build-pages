@@ -42,7 +42,7 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Calculate docker tag information
+    - name: Calculate Docker tag information
       id: action_meta
       shell: bash
       env:
@@ -104,7 +104,7 @@ runs:
       run: |
         echo $GITHUB_TOKEN | docker login $DOCKER_REGISTRY -u $GITHUB_ACTOR --password-stdin
 
-    - name: Create reusable values
+    - name: Create other Docker variables
       id: docker
       shell: bash
       env:
