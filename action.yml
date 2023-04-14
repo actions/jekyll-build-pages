@@ -159,7 +159,7 @@ runs:
         echo "container_label=${DOCKER_CONTAINER_LABEL}" >> $GITHUB_OUTPUT
         echo "env_expansion=${PASSTHROUGH_ENV_VARS}" >> $GITHUB_OUTPUT
 
-    - if: ${{ steps.login.outcome == 'success' }}
+    - if: ${{ steps.docker.outputs.building != 'true' }}
       name: Pull prebuilt Docker image
       shell: sh
       env:
@@ -167,7 +167,7 @@ runs:
       run: |
         docker pull $DOCKER_IMAGE_URL
 
-    - if: ${{ steps.login.outcome != 'success' }}
+    - if: ${{ steps.docker.outputs.building == 'true' }}
       name: Build local Docker image
       shell: sh
       env:
