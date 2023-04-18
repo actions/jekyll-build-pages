@@ -51,9 +51,10 @@ jobs:
     outputs:
       major_tag: ${{ steps.update-major-tag.outputs.major-tag }}
     steps:
-    - name: Update the ${{ env.TAG_NAME }} tag
-      id: update-major-tag
-      uses: actions/publish-action@v0.2.2
-      with:
-        source-tag: ${{ env.TAG_NAME }}
-        slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
+      - name: Update the ${{ env.TAG_NAME }} major tag
+        id: update-major-tag
+        uses: actions/publish-action@v0.2.2
+        with:
+          source-tag: ${{ env.TAG_NAME }}
+          slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
+          token: ${{ secrets.PAGES_AUTOMATION_PAT }}
