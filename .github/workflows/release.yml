@@ -56,5 +56,4 @@ jobs:
         uses: actions/publish-action@v0.2.2
         with:
           source-tag: ${{ env.TAG_NAME }}
-          slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
           token: ${{ secrets.PAGES_AUTOMATION_PAT }}
