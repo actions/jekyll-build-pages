@@ -47,14 +47,23 @@ runs:
       shell: bash
       env:
         DOCKER_TAG_FALLBACK: v1.0.7
+        DOCKER_REGISTRY: ghcr.io
         # Do not set this as `GITHUB_ACTION_REPOSITORY` due to a bug in the runner!
-        #GITHUB_ACTION_REPO: ${{ github.action_repository }}
-        GITHUB_ACTION_REPO: actions/jekyll-build-pages
+        #DOCKER_REPO: ${{ github.action_repository }}
+        DOCKER_REPO: actions/jekyll-build-pages
         # Infer Docker container image to use, if possible
         # Do not set this as `GITHUB_ACTION_REF` due to a bug in the runner!
-        GITHUB_ACTION_REF_COMMITISH: ${{ github.action_ref }}
+        ACTION_REF_COMMITISH: ${{ github.action_ref }}
+        # "If the action is written using a composite, then it will not automatically get INPUT_<VARIABLE_NAME>."
+        # Ergo, these must be manually created here using `inputs` references.
+        INPUT_SOURCE: ${{ inputs.source }}
+        INPUT_DESTINATION: ${{ inputs.destination }}
+        INPUT_FUTURE: ${{ inputs.future }}
+        INPUT_BUILD_REVISION: ${{ inputs.build_revision }}
+        INPUT_VERBOSE: ${{ inputs.verbose }}
+        INPUT_TOKEN: ${{ inputs.token }}
       run: |
-        CLEAN_COMMITISH=$(echo "${GITHUB_ACTION_REF_COMMITISH}" | sed 's/[^a-zA-Z0-9._-]//g')
+        CLEAN_COMMITISH=$(echo "${ACTION_REF_COMMITISH}" | sed 's/[^a-zA-Z0-9._-]//g')
 
         # Check for the default branch
         if [[ "${CLEAN_COMMITISH}" == "main" ]]; then
@@ -69,10 +78,43 @@ runs:
           echo "Using Docker tag fallback '${DOCKER_TAG}' for git non-default branch or commit SHA '${CLEAN_COMMITISH}'"
         fi
 
+        DOCKER_IMAGE_URL="${DOCKER_REGISTRY}/${DOCKER_REPO}:${DOCKER_TAG}"
+
+        # Modeled after: https://github.com/actions/runner/blob/1ceb1a67f270537fe80da23445fa78bfb97503ea/src/Runner.Worker/Container/ContainerInfo.cs#L37
+        # example: ghcrioactionsjekyllbuildpagesv107_7ca21f
+        DOCKER_CONTAINER_BASENAME=$(echo "${DOCKER_IMAGE_URL}" | sed 's/[^a-zA-Z0-9]//g')
+        NEW_GUID=$(uuidgen)
+        DOCKER_CONTAINER_NAME="${DOCKER_CONTAINER_BASENAME}_${NEW_GUID:0:6}"
+
+        # actions/runner source: https://github.com/actions/runner/blob/0484afeec71b612022e35ba80e5fe98a99cd0be8/src/Runner.Worker/Container/DockerCommandManager.cs#L49
+        # actions/runner example: 6c0442
+        # However, here, we're generating a SHA from the workflow run information
+        # instead of trying to figure out the equivalent directory path
+        LABEL_BASE="${GITHUB_RUN_ID}/${GITHUB_RUN_NUMBER}/${GITHUB_JOB}"
+        LABEL_SHA=$(echo "${LABEL_BASE}" | shasum -a 256 | awk '{print $1}')
+        DOCKER_CONTAINER_LABEL="${LABEL_SHA:0:6}"
+
+        # Craft an expected image name in case we need to do the local build
+        DOCKER_IMAGE_NAME="${DOCKER_CONTAINER_LABEL}:$(uuidgen)"
+
+        # actions/runner source: https://github.com/actions/runner/blob/0484afeec71b612022e35ba80e5fe98a99cd0be8/src/Runner.Worker/Container/DockerCommandManager.cs#L130-L140
+        # Gather list of environment variable names starting with GITHUB_
+        GITHUB_ENV_VARS=$(env | while IFS= read -r line; do key=${line%%=*}; if [[ "$key" =~ ^GITHUB_.+$ ]]; then printf -- '-e %s ' "$key"; fi; done)
+        # Gather list of environment variable names starting with ACTIONS_
+        ACTIONS_ENV_VARS=$(env | while IFS= read -r line; do key=${line%%=*}; if [[ "$key" =~ ^ACTIONS_.+$ ]]; then printf -- '-e %s ' "$key"; fi; done)
+        # Gather list of environment variable names with values starting with INPUT_
+        INPUT_ENV_VARS=$(env | while IFS= read -r line; do key=${line%%=*}; val=${line#*=}; if [[ "$key" =~ ^INPUT_.+$ ]]; then printf -- '-e %s=%s ' "$key" "$val"; fi; done)
+        PASSTHROUGH_ENV_VARS="${GITHUB_ENV_VARS}${ACTIONS_ENV_VARS}${INPUT_ENV_VARS}"
+
         # Set step outputs
+        echo "docker_registry=${DOCKER_REGISTRY}" >> $GITHUB_OUTPUT
+        echo "docker_repo=${DOCKER_REPO}" >> $GITHUB_OUTPUT
         echo "docker_tag=${DOCKER_TAG}" >> $GITHUB_OUTPUT
-        echo "docker_repo=${GITHUB_ACTION_REPO}" >> $GITHUB_OUTPUT
-        echo "docker_registry=ghcr.io" >> $GITHUB_OUTPUT
+        echo "image_url=${DOCKER_IMAGE_URL}" >> $GITHUB_OUTPUT
+        echo "image_name=${DOCKER_IMAGE_NAME}" >> $GITHUB_OUTPUT
+        echo "container_name=${DOCKER_CONTAINER_NAME}" >> $GITHUB_OUTPUT
+        echo "container_label=${DOCKER_CONTAINER_LABEL}" >> $GITHUB_OUTPUT
+        echo "env_expansion=${PASSTHROUGH_ENV_VARS}" >> $GITHUB_OUTPUT
 
     - name: Check GHCR status
       id: ghcr
@@ -92,86 +134,30 @@ runs:
         echo "up=${GHCR_UP}" >> $GITHUB_OUTPUT
 
     - if: ${{ steps.ghcr.outputs.up == 'true' }}
-      name: Login to GHCR
-      id: login
+      name: Pull prebuilt Docker image
+      id: docker_pull
       shell: sh
       continue-on-error: true
       env:
-        DOCKER_REGISTRY: ${{ steps.action_meta.outputs.docker_registry }}
         GITHUB_TOKEN: ${{ inputs.token }}
+        DOCKER_REGISTRY: ${{ steps.action_meta.outputs.docker_registry }}
+        DOCKER_IMAGE_URL: ${{ steps.action_meta.outputs.image_url }}
       run: |
+        # Login to GHCR
         echo $GITHUB_TOKEN | docker login $DOCKER_REGISTRY -u $GITHUB_ACTOR --password-stdin
 
-    - name: Create other Docker variables
-      id: docker
-      shell: bash
-      env:
-        DOCKER_REGISTRY: ${{ steps.action_meta.outputs.docker_registry }}
-        DOCKER_REPO: ${{ steps.action_meta.outputs.docker_repo }}
-        DOCKER_TAG: ${{ steps.action_meta.outputs.docker_tag }}
-        # Do we need to manually build the Docker image?
-        MUST_BUILD: ${{ steps.ghcr.outputs.up != 'true' || steps.login.outcome != 'success' }}
-        # "If the action is written using a composite, then it will not automatically get INPUT_<VARIABLE_NAME>."
-        # Ergo, these must be manually created here using `inputs` references.
-        INPUT_SOURCE: ${{ inputs.source }}
-        INPUT_DESTINATION: ${{ inputs.destination }}
-        INPUT_FUTURE: ${{ inputs.future }}
-        INPUT_BUILD_REVISION: ${{ inputs.build_revision }}
-        INPUT_VERBOSE: ${{ inputs.verbose }}
-        INPUT_TOKEN: ${{ inputs.token }}
-      run: |
-        DOCKER_IMAGE_URL="${DOCKER_REGISTRY}/${DOCKER_REPO}:${DOCKER_TAG}"
-
-        # Modeled after: https://github.com/actions/runner/blob/1ceb1a67f270537fe80da23445fa78bfb97503ea/src/Runner.Worker/Container/ContainerInfo.cs#L37
-        # example: ghcrioactionsjekyllbuildpagesv107_7ca21f
-        DOCKER_CONTAINER_BASENAME=$(echo "${DOCKER_IMAGE_URL}" | sed 's/[^a-zA-Z0-9]//g')
-        NEW_GUID=$(uuidgen)
-        DOCKER_CONTAINER_NAME="${DOCKER_CONTAINER_BASENAME}_${NEW_GUID:0:6}"
-
-        # actions/runner source: https://github.com/actions/runner/blob/0484afeec71b612022e35ba80e5fe98a99cd0be8/src/Runner.Worker/Container/DockerCommandManager.cs#L49
-        # actions/runner example: 6c0442
-        # However, here, we're generating a SHA from the workflow run information
-        # instead of trying to figure out the equivalent directory path
-        LABEL_BASE="${GITHUB_RUN_ID}/${GITHUB_RUN_NUMBER}/${GITHUB_JOB}"
-        LABEL_SHA=$(echo "${LABEL_BASE}" | shasum -a 256 | awk '{print $1}')
-        DOCKER_CONTAINER_LABEL="${LABEL_SHA:0:6}"
-
-        # Craft an expected image name in case we need to do the local build
-        DOCKER_IMAGE_NAME=$DOCKER_IMAGE_URL
-        if [[ "$MUST_BUILD" == "true" ]]; then
-          DOCKER_IMAGE_NAME="${DOCKER_CONTAINER_LABEL}:$(uuidgen)"
-        fi
-
-        # actions/runner source: https://github.com/actions/runner/blob/0484afeec71b612022e35ba80e5fe98a99cd0be8/src/Runner.Worker/Container/DockerCommandManager.cs#L130-L140
-        # Gather list of environment variable names starting with GITHUB_
-        GITHUB_ENV_VARS=$(env | while IFS= read -r line; do key=${line%%=*}; if [[ "$key" =~ ^GITHUB_.+$ ]]; then printf -- '-e %s ' "$key"; fi; done)
-        # Gather list of environment variable names starting with ACTIONS_
-        ACTIONS_ENV_VARS=$(env | while IFS= read -r line; do key=${line%%=*}; if [[ "$key" =~ ^ACTIONS_.+$ ]]; then printf -- '-e %s ' "$key"; fi; done)
-        # Gather list of environment variable names with values starting with INPUT_
-        INPUT_ENV_VARS=$(env | while IFS= read -r line; do key=${line%%=*}; val=${line#*=}; if [[ "$key" =~ ^INPUT_.+$ ]]; then printf -- '-e %s=%s ' "$key" "$val"; fi; done)
-        PASSTHROUGH_ENV_VARS="${GITHUB_ENV_VARS}${ACTIONS_ENV_VARS}${INPUT_ENV_VARS}"
-
-        # Set step outputs
-        echo "building=${MUST_BUILD}" >> $GITHUB_OUTPUT
-        echo "image_url=${DOCKER_IMAGE_URL}" >> $GITHUB_OUTPUT
-        echo "image_name=${DOCKER_IMAGE_NAME}" >> $GITHUB_OUTPUT
-        echo "container_name=${DOCKER_CONTAINER_NAME}" >> $GITHUB_OUTPUT
-        echo "container_label=${DOCKER_CONTAINER_LABEL}" >> $GITHUB_OUTPUT
-        echo "env_expansion=${PASSTHROUGH_ENV_VARS}" >> $GITHUB_OUTPUT
-
-    - if: ${{ steps.docker.outputs.building != 'true' }}
-      name: Pull prebuilt Docker image
-      shell: sh
-      env:
-        DOCKER_IMAGE_URL: ${{ steps.docker.outputs.image_url }}
-      run: |
+        # Pull the Docker image
         docker pull $DOCKER_IMAGE_URL
 
-    - if: ${{ steps.docker.outputs.building == 'true' }}
+        # Set step outputs
+        echo "image_name=$DOCKER_IMAGE_URL" >> $GITHUB_OUTPUT
+
+    - if: ${{ steps.docker_pull.outcome != 'success' }}
+      id: docker_build
       name: Build local Docker image
       shell: sh
       env:
-        DOCKER_IMAGE_NAME: ${{ steps.docker.outputs.image_name }}
+        DOCKER_IMAGE_NAME: ${{ steps.action_meta.outputs.image_name }}
       run: |
         # Manually change directory to avoid bug with github.action_path reference
         # Issue: https://github.com/actions/runner/issues/716
@@ -184,16 +170,16 @@ runs:
     - name: Run task in Docker container
       shell: sh
       env:
-        DOCKER_CONTAINER_NAME: ${{ steps.docker.outputs.container_name }}
-        DOCKER_CONTAINER_LABEL: ${{ steps.docker.outputs.container_label }}
-        DOCKER_IMAGE_NAME: ${{ steps.docker.outputs.image_name }}
+        DOCKER_CONTAINER_NAME: ${{ steps.action_meta.outputs.container_name }}
+        DOCKER_CONTAINER_LABEL: ${{ steps.action_meta.outputs.container_label }}
+        DOCKER_IMAGE_NAME: ${{ steps.docker_pull.outputs.image_name || steps.action_meta.outputs.image_name }}
       run: |
         docker run \
           --name $DOCKER_CONTAINER_NAME \
           --label $DOCKER_CONTAINER_LABEL \
           --workdir /github/workspace \
           --rm \
-          ${{ steps.docker.outputs.env_expansion }} \
+          ${{ steps.action_meta.outputs.env_expansion }} \
           -e HOME \
           -e CI=true \
           -e GITHUB_ACTIONS=true \
@@ -210,9 +196,9 @@ runs:
       shell: sh
       env:
         GHCR_UP: ${{ steps.ghcr.outputs.up == 'true' }}
-        DOCKER_PULLED_FROM_GHCR: ${{ steps.docker.outputs.building != 'true' }}
-        DOCKER_BUILT_LOCALLY: ${{ steps.docker.outputs.building == 'true' }}
-        DOCKER_IMAGE_NAME: ${{ steps.docker.outputs.image_name }}
+        DOCKER_PULLED_FROM_GHCR: ${{ steps.docker_pull.outcome == 'success' }}
+        DOCKER_BUILT_LOCALLY: ${{ steps.docker_pull.outcome != 'success' }}
+        DOCKER_IMAGE_NAME: ${{ steps.docker_pull.outputs.image_name || steps.action_meta.outputs.image_name }}
       run: |
         # Set step outputs
         echo "ghcr_up=$GHCR_UP" >> $GITHUB_OUTPUT
