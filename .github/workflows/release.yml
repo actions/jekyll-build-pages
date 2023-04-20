@@ -51,9 +51,23 @@ jobs:
     outputs:
       major_tag: ${{ steps.update-major-tag.outputs.major-tag }}
     steps:
-    - name: Update the ${{ env.TAG_NAME }} tag
-      id: update-major-tag
-      uses: actions/publish-action@v0.2.2
-      with:
-        source-tag: ${{ env.TAG_NAME }}
-        slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
+      - name: Update the ${{ env.TAG_NAME }} major tag
+        id: update-major-tag
+        uses: actions/publish-action@v0.2.2
+        with:
+          source-tag: ${{ env.TAG_NAME }}
+
+      # Login to the GHCR Docker registry
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Docker image tag
+        env:
+          NEW_TAG: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.update-major-tag.outputs.major-tag }}
+          SOURCE_TAG: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_NAME }}
+        run: |
+          docker buildx imagetools create --tag $NEW_TAG $SOURCE_TAG
