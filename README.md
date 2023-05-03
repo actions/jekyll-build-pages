@@ -43,7 +43,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 ```
 
-To write to a different destination directory, match the inputs of both the `jekyll-build-pages` and `upload-pages-artifact` actions.
+To write to a different destination directory, match the inputs of both the `jekyll-build-pages` and [`upload-pages-artifact`](https://github.com/actions/upload-pages-artifact) actions.
 
 ```yaml
 steps:
@@ -62,7 +62,7 @@ steps:
 | Input | Default | Description |
 |-------|---------|-------------|
 | `source` | `./` | The directory to build from |
-| `destination` | `./_site` | The directory to write output into<br>(this should match the `path` input of the `actions/upload-pages-artifact` action) |
+| `destination` | `./_site` | The directory to write output into<br>(this should match the `path` input of the [`actions/upload-pages-artifact`](https://github.com/actions/upload-pages-artifact) action) |
 | `future` | `false` | If `true`, writes content dated in the future |
 | `build_revision` | `$GITHUB_SHA` | The SHA-1 of the Git commit for which the build is running |
 | `verbose` | `false` | If `true`, prints verbose output in logs |
