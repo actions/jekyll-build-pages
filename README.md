@@ -8,7 +8,7 @@ This is used along with [`actions/deploy-pages`](https://github.com/actions/depl
 
 ## Usage
 
-A basic workflow with the `jekyll-build-pages` action looks like this.
+A basic Pages deployment workflow with the `jekyll-build-pages` action looks like this.
 
 ```yaml
 name: Build Jekyll site
