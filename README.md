@@ -74,11 +74,17 @@ In order to release a new version of this Action:
 
 1. Locate the semantic version of the [upcoming release][release-list] (a draft is maintained by the [`draft-release` workflow][draft-release]).
 
-2. Prepare a pull request to update [`action.yml`][action.yml] to reference the incoming version
+2. Prepare a pull request to update [`action.yml`][action.yml] to reference the incoming version, get it approved, and merge it into the `main` branch.
 
-3. Publish the draft release from the `main` branch with semantic version as the tag name, _with_ the checkbox to publish to the GitHub Marketplace checked. :ballot_box_with_check:
+3. Publish the draft release **as a pre-release** from the `main` branch with semantic version as the tag name, _with_:
+   - the checkbox to publish to the GitHub Marketplace checked :ballot_box_with_check:
+   - :warning: _AND_ the checkbox to **Set as a pre-release** checked. :ballot_box_with_check:
 
-4. After publishing the release, the [`release` workflow][release] will automatically run to create/update the corresponding the major version tag such as `v1`.
+4. This will kick off a [Docker publishing workflow][docker-publish] for the newly created tag. Check the [associated workflow run list][docker-publish-workflow-runs] to verify the new Docker image is created successfully before moving on to the next step.
+
+5. After the Docker image has been created with the new tag, find that [same pre-release][release-list] and edit it. Update it with the checkbox to **Set as the latest release** checked :ballot_box_with_check: and then publish it again.
+
+6. After publishing it as the latest release, the [`release` workflow][release] will automatically run to create/update the corresponding the major version tag such as `v1`.
 
    ⚠️ Environment approval is required. Check the [Release workflow run list][release-workflow-runs].
 
@@ -88,7 +94,9 @@ The scripts and documentation in this project are released under the [MIT Licens
 
 <!-- references -->
 [release-list]: https://github.com/actions/jekyll-build-pages/releases
-[draft-release]: .github/workflows/release.yml
+[draft-release]: .github/workflows/draft-release.yml
+[docker-publish]: .github/workflows/docker-publish.yml
 [release]: .github/workflows/release.yml
-[release-workflow-runs]: https://github.com/actions/deploy-pages/actions/workflows/release.yml
+[docker-publish-workflow-runs]: https://github.com/actions/jekyll-build-pages/actions/workflows/docker-publish.yml
+[release-workflow-runs]: https://github.com/actions/jekyll-build-pages/actions/workflows/release.yml
 [action.yml]: https://github.com/actions/jekyll-build-pages/blob/649f5d3c2b2462620c8945f034200e431ceddd29/action.yml#LL31C54-L31C60
