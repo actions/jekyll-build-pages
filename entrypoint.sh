@@ -14,7 +14,7 @@ PAGES_GEM_HOME=$BUNDLE_APP_CONFIG
 GITHUB_PAGES_BIN=$PAGES_GEM_HOME/bin/github-pages
 
 # Check if Gemfile's dependencies are satisfied or print a warning 
-if test -e "$SOURCE_DIRECTORY/Gemfile" && ! bundle check --dry-run --gemfile "$SOURCE_DIRECTORY/Gemfile" >/dev/null 2>&1; then
+if test -e "$SOURCE_DIRECTORY/Gemfile" && ! bundle check --dry-run --gemfile "$SOURCE_DIRECTORY/Gemfile"; then
   echo "::warning:: github-pages can't satisfy your Gemfile's dependencies."
 fi
 
