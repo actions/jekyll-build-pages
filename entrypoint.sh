@@ -13,7 +13,7 @@ DESTINATION_DIRECTORY=${GITHUB_WORKSPACE}/$INPUT_DESTINATION
 PAGES_GEM_HOME=$BUNDLE_APP_CONFIG
 GITHUB_PAGES_BIN=$PAGES_GEM_HOME/bin/github-pages
 
-# Check if Gemfile's dependencies are satisfied or print a warning 
+# Check if Gemfile's dependencies are satisfied or print a warning
 if test -e "$SOURCE_DIRECTORY/Gemfile" && ! bundle check --dry-run --gemfile "$SOURCE_DIRECTORY/Gemfile"; then
   echo "::warning:: github-pages can't satisfy your Gemfile's dependencies."
 fi
@@ -23,6 +23,7 @@ export JEKYLL_ENV="production"
 export JEKYLL_GITHUB_TOKEN=$INPUT_TOKEN
 export PAGES_REPO_NWO=$GITHUB_REPOSITORY
 export JEKYLL_BUILD_REVISION=$INPUT_BUILD_REVISION
+export PAGES_API_URL=$GITHUB_API_URL
 
 # Set verbose flag
 if [ "$INPUT_VERBOSE" = 'true' ]; then
