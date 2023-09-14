@@ -13,7 +13,7 @@ GITHUB_PAGES_BIN=$PAGES_GEM_HOME/bin/github-pages
 
 # Check if Gemfile's dependencies are satisfied or print a warning
 if test -e "$SOURCE_DIRECTORY/Gemfile" && ! bundle check --dry-run --gemfile "$SOURCE_DIRECTORY/Gemfile"; then
-  echo "::warning:: github-pages can't satisfy your Gemfile's dependencies."
+  echo "::warning::The github-pages gem can't satisfy your Gemfile's dependencies. If you want to use a different Jekyll version or need additional dependencies, consider building Jekyll site with GitHub Actions: https://jekyllrb.com/docs/continuous-integration/github-actions/"
 fi
 
 # Set environment variables required by supported plugins
