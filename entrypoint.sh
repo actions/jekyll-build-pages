@@ -6,8 +6,6 @@
 #
 ####################################################################################################
 
-set -o errexit
-
 SOURCE_DIRECTORY=${GITHUB_WORKSPACE}/$INPUT_SOURCE
 DESTINATION_DIRECTORY=${GITHUB_WORKSPACE}/$INPUT_DESTINATION
 PAGES_GEM_HOME=$BUNDLE_APP_CONFIG
@@ -39,5 +37,22 @@ else
   FUTURE=''
 fi
 
-cd "$PAGES_GEM_HOME"
-$GITHUB_PAGES_BIN build "$VERBOSE" "$FUTURE" --source "$SOURCE_DIRECTORY" --destination "$DESTINATION_DIRECTORY"
+{ cd "$PAGES_GEM_HOME" || { echo "::error::pages gem not found"; exit 1; }; }
+
+# Run the command, capturing the output
+build_output="$($GITHUB_PAGES_BIN build "$VERBOSE" "$FUTURE" --source "$SOURCE_DIRECTORY" --destination "$DESTINATION_DIRECTORY")"
+
+# Capture the exit code
+exit_code=$?
+
+if [ $exit_code -ne 0 ]; then
+  # Remove the newlines from the build_output as annotation not support multiline
+  error=$(echo "$build_output" | tr '\n' ' ' | tr -s ' ')
+  echo "::error::$error"
+else
+  # Display the build_output directly
+  echo "$build_output"
+fi
+
+# Exit with the captured exit code
+exit $exit_code
