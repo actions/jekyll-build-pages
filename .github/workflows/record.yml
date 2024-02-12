@@ -61,7 +61,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Archive ${{ matrix.test }} Project
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.test }}
           path: ./test_projects/${{ matrix.test }}/_expected
