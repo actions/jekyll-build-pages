@@ -881,8 +881,8 @@ format. You can find the full spec at &lt;a href=&quot;http://tomdoc.org&quot;&g
 &lt;span class=&quot;c1&quot;&gt;#&lt;/span&gt;
 &lt;span class=&quot;c1&quot;&gt;# Examples&lt;/span&gt;
 &lt;span class=&quot;c1&quot;&gt;#&lt;/span&gt;
-&lt;span class=&quot;c1&quot;&gt;#   multiplex('Tom', 4)&lt;/span&gt;
-&lt;span class=&quot;c1&quot;&gt;#   # =&amp;gt; 'TomTomTomTom'&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   multiplex(&apos;Tom&apos;, 4)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   # =&amp;gt; &apos;TomTomTomTom&apos;&lt;/span&gt;
 &lt;span class=&quot;c1&quot;&gt;#&lt;/span&gt;
 &lt;span class=&quot;c1&quot;&gt;# Returns the duplicated String.&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;multiplex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
