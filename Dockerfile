@@ -1,4 +1,4 @@
-ARG RUBY_VERSION=2.7.4
+ARG RUBY_VERSION=3.2.2
 FROM ruby:$RUBY_VERSION-slim
 
 RUN apt-get update \
@@ -22,4 +22,3 @@ ENV LC_ALL en_US.UTF-8
 COPY entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
-
