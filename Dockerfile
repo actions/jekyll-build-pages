@@ -11,6 +11,7 @@ RUN apt-get update \
 COPY Gemfile Gemfile
 
 RUN NOKOGIRI_USE_SYSTEM_LIBRARIES=true bundle install
+RUN NOKOGIRI_USE_SYSTEM_LIBRARIES=true npm ci
 
 RUN \
   echo "en_US UTF-8" > /etc/locale.gen && \
