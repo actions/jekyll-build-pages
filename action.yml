@@ -1,31 +1,33 @@
-name: 'Build Jekyll for GitHub Pages'
-description: 'A simple GitHub Action for producing Jekyll build artifacts compatible with GitHub Pages'
-author: 'GitHub'
+name: "Build Jekyll for GitHub Pages - custom u1trav101et fork"
+description: "A simple GitHub Action for producing Jekyll build artifacts compatible with GitHub Pages"
+icon: box
+color: purple
+author: "u1trav101"
 inputs:
   source:
-    description: 'Directory where the source files reside.'
+    description: "Directory where the source files reside."
     required: false
     default: ./
   destination:
-    description: 'Output directory of the build. Although it can be nested inside the source, it cannot be the same as the source directory.'
+    description: "Output directory of the build. Although it can be nested inside the source, it cannot be the same as the source directory."
     required: false
     default: ./_site
   future:
-    description: 'Publishes posts with a future date. When set to true, the build is made with the --future option which overrides the future option that may be set in a Jekyll configuration file.'
+    description: "Publishes posts with a future date. When set to true, the build is made with the --future option which overrides the future option that may be set in a Jekyll configuration file."
     required: false
     default: false
   build_revision:
-    description: 'The SHA-1 of the git commit for which the build is running. Default to GITHUB_SHA.'
+    description: "The SHA-1 of the git commit for which the build is running. Default to GITHUB_SHA."
     required: false
     default: ${{ github.sha }}
   verbose:
-    description: 'Verbose output'
+    description: "Verbose output"
     required: false
     default: true
   token:
-    description: 'GitHub token'
+    description: "GitHub token"
     required: true
     default: ${{ github.token }}
 runs:
-  using: 'docker'
-  image: 'docker://ghcr.io/actions/jekyll-build-pages:v1.0.13'
+  using: "docker"
+  image: "docker://docker.io/u1trav101/jekyll-build-pages:v1.0.13"
