@@ -1,7 +1,7 @@
 name: "Build Jekyll for GitHub Pages - custom u1trav101et fork"
 description: "A simple GitHub Action for producing Jekyll build artifacts compatible with GitHub Pages"
-icon: "box"
-color: "purple"
+icon: box
+color: purple
 author: "u1trav101"
 inputs:
   source:
