@@ -28,4 +28,4 @@ inputs:
     default: ${{ github.token }}
 runs:
   using: 'docker'
-  image: 'docker://ghcr.io/actions/jekyll-build-pages:v1.0.13'
+  image: 'u1trav101/jekyll-build-pages:v1.0.13'
