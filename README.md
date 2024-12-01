@@ -63,6 +63,7 @@ steps:
 |-------|---------|-------------|
 | `source` | `./` | The directory to build from |
 | `destination` | `./_site` | The directory to write output into<br>(this should match the `path` input of the [`actions/upload-pages-artifact`](https://github.com/actions/upload-pages-artifact) action) |
+| `base_url` | `` | Name of sub-directory the site is served from e.g., /my-repo-name. |
 | `future` | `false` | If `true`, writes content dated in the future |
 | `build_revision` | `$GITHUB_SHA` | The SHA-1 of the Git commit for which the build is running |
 | `verbose` | `false` | If `true`, prints verbose output in logs |
