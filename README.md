@@ -30,7 +30,7 @@ jobs:
       - name: Build
         uses: actions/jekyll-build-pages@v1
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -52,7 +52,7 @@ steps:
     with:
       destination: "./output"
   - name: Upload artifact
-    uses: actions/upload-pages-artifact@v3
+    uses: actions/upload-pages-artifact@v4
     with:
       path: "./output"
 ```
