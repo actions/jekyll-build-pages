@@ -15,7 +15,7 @@ inputs:
     required: false
     default: false
   build_revision:
-    description: 'The commit SHA for which the build is running. Defaults to GITHUB_SHA.'
+    description: 'The SHA of the git commit for which the build is running. Defaults to GITHUB_SHA.'
     required: false
     default: ${{ github.sha }}
   verbose:
