@@ -24,13 +24,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Build
         uses: actions/jekyll-build-pages@v1
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -52,7 +52,7 @@ steps:
     with:
       destination: "./output"
   - name: Upload artifact
-    uses: actions/upload-pages-artifact@v3
+    uses: actions/upload-pages-artifact@v4
     with:
       path: "./output"
 ```
