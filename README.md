@@ -84,7 +84,7 @@ In order to release a new version of this Action:
 
 5. After the Docker image has been created with the new tag, find that [same pre-release][release-list] and edit it. Update it with the checkbox to **Set as the latest release** checked :ballot_box_with_check: and then publish it again.
 
-6. After publishing it as the latest release, the [`release` workflow][release] will automatically run to create/update the corresponding the major version tag such as `v1`.
+6. After publishing it as the latest release, the [`release` workflow][release] will automatically run to create/update the corresponding major version tag such as `v1`.
 
    ⚠️ Environment approval is required. Check the [Release workflow run list][release-workflow-runs].
 
